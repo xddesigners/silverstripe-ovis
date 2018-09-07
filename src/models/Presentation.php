@@ -120,7 +120,7 @@ class Presentation extends DataObject
 
     private static $plural_name = 'Presentations';
 
-    private static $db = array(
+    private static $db = [
         'Title' => 'Varchar(255)',
         'Slug' => 'Varchar(255)',
         // XD\Ovis\Schemas\Presentation
@@ -220,30 +220,37 @@ class Presentation extends DataObject
         'PriceSold' => 'Int',
         'VAT' => 'Varchar(255)',
         // TODO XD\Ovis\Schemas\PresentationSpecificationPricesRental
-    );
+    ];
 
-    private static $indexes = array(
+    private static $summary_fields = [
+        'CMSThumbnail' => 'Thumbnail',
+        'Title',
+        'PriceNice' => 'Price',
+        'Sold.Nice' => 'Sold'
+    ];
+
+    private static $indexes = [
         'Slug' => true,
         'OvisID' => true
-    );
+    ];
 
-    private static $has_many = array(
+    private static $has_many = [
         'Media' => 'XD\Ovis\Models\PresentationMedia',
         'Accessories' => 'XD\Ovis\Models\PresentationAccessory' // todo can this be a many_many join .. ?
-    );
+    ];
 
-    private static $many_many = array(
+    private static $many_many = [
         'Beds' => 'XD\Ovis\Models\PresentationBed',
         'Divisions' => 'XD\Ovis\Models\PresentationDivision'
-    );
+    ];
 
-    public function getCMSFields()
+    public function CMSThumbnail()
     {
-        $fields = new FieldList(new TabSet('Root', $mainTab = new Tab('Main')));
-        $fields->addFieldsToTab('Root.Main', []);
+        if ($image = $this->getOGImage()){
+            return $image->CMSThumbnail();
+        }
 
-        $this->extend('updateCMSFields', $fields);
-        return $fields;
+        return null;
     }
 
     public function onBeforeWrite()
@@ -312,7 +319,7 @@ class Presentation extends DataObject
     /**
      * Override the default Open Graph Image
      *
-     * @return mixed
+     * @return \Image|null
      */
     function getOGImage()
     {
@@ -339,7 +346,7 @@ class Presentation extends DataObject
     public function PriceRetailNice()
     {
         $price = number_format((int)$this->PriceRetail / 100, 2, ',', '.');
-        return "&euro;&nbsp;$price";
+        return "€ $price";
     }
 
     /**
@@ -350,7 +357,7 @@ class Presentation extends DataObject
     public function PriceNice()
     {
         $price = number_format((int)$this->Price / 100, 2, ',', '.');
-        return "&euro;&nbsp;$price";
+        return "€ $price";
     }
 
     /**

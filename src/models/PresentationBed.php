@@ -19,10 +19,20 @@ class PresentationBed extends DataObject
 {
     private static $table_name = 'PresentationBed';
 
+    private static $singular_name = 'Bed';
+
+    private static $plural_name = 'Beds';
+
     private static $db = [
         'Length' => 'Int',
         'Width' => 'Int',
         'Type' => 'Varchar(255)',
+    ];
+
+    private static $summary_fields = [
+        'Type',
+        'Length',
+        'Width',
     ];
 
     public function getTitle()

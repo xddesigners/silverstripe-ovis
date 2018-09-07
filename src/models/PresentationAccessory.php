@@ -22,6 +22,10 @@ class PresentationAccessory extends DataObject
 {
     private static $table_name = 'PresentationAccessory';
 
+    private static $singular_name = 'Accessory';
+
+    private static $plural_name = 'Accessories';
+
     private static $db = [
         'Category' => 'Varchar(255)',
         'Description' => 'Varchar(255)',
@@ -33,6 +37,12 @@ class PresentationAccessory extends DataObject
 
     private static $many_many = [
         'Sub' => 'XD\Ovis\Models\PresentationAccessorySub'
+    ];
+
+    private static $summary_fields = [
+        'Category',
+        'Description',
+        'Sub.Count' => 'Sub sections',
     ];
 
     public function getTitle()

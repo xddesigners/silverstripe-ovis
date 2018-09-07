@@ -22,10 +22,20 @@ class PresentationAccessorySub extends DataObject
 {
     private static $table_name = 'PresentationAccessorySub';
 
+    private static $singular_name = 'Accessory sub section';
+
+    private static $plural_name = 'Accessory sub sections';
+
     private static $db = [
         'Label' => 'Varchar(255)',
         'Units' => 'Varchar(255)',
         'Value' => 'Varchar(255)',
+    ];
+
+    private static $summary_fields = [
+        'Label',
+        'Units',
+        'Value',
     ];
 
     public function getTitle()

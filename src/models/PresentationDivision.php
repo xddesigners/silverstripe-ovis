@@ -18,9 +18,18 @@ class PresentationDivision extends DataObject
 {
     private static $table_name = 'PresentationDivision';
 
+    private static $singular_name = 'Division';
+
+    private static $plural_name = 'Divisions';
+
     private static $db = [
         'Category' => 'Varchar(255)',
         'Division' => 'Varchar(255)',
+    ];
+
+    private static $summary_fields = [
+        'Category',
+        'Division',
     ];
 
     public function getTitle()

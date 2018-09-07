@@ -17,12 +17,6 @@ use ModelAdmin;
  */
 class OvisAdmin extends ModelAdmin
 {
-    public function __construct()
-    {
-        parent::__construct();
-        self::remove_extension('ImportAdminExtension');
-    }
-
     private static $managed_models = [
         'XD\Ovis\Models\Order',
         'XD\Ovis\Models\Presentation'
@@ -32,5 +26,5 @@ class OvisAdmin extends ModelAdmin
 
     private static $menu_title = 'OVIS';
 
-    //private static $menu_icon = '';
+    private static $menu_icon = '/ovis/images/ovis.png';
 }
