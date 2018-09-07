@@ -72,6 +72,12 @@ class Presentation_Controller extends Page_Controller
         return Form::create($this, 'OrderForm', $fields, $actions, $required);
     }
 
+    /**
+     * Submit and save the order
+     *
+     * @param $data
+     * @param Form $form
+     */
     public function Order($data, Form $form)
     {
         $order = Order::create();

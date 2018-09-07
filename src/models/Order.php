@@ -54,6 +54,8 @@ class Order extends DataObject
         'Question' => 'Varchar(255)',
     ];
 
+    private static $default_sort = 'Created DESC';
+
     private static $has_one = [
         'Presentation' => 'XD\Ovis\Models\Presentation'
     ];
@@ -62,6 +64,7 @@ class Order extends DataObject
         'Name',
         'Email',
         'Presentation.Title' => 'About',
+        'Created.Nice' => 'Date',
     ];
 
     public function getTitle()
