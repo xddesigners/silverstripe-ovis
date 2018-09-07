@@ -16,6 +16,10 @@ class Order extends DataObject
 {
     private static $table_name = 'Order';
 
+    private static $singular_name = 'Order';
+
+    private static $plural_name = 'Orders';
+
     private static $db = [
         'Name' => 'Varchar(255)',
         'Email' => 'Varchar(255)',

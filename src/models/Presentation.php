@@ -116,6 +116,10 @@ class Presentation extends DataObject
 {
     private static $table_name = 'Presentation';
 
+    private static $singular_name = 'Presentation';
+
+    private static $plural_name = 'Presentations';
+
     private static $db = array(
         'Title' => 'Varchar(255)',
         'Slug' => 'Varchar(255)',
@@ -334,7 +338,7 @@ class Presentation extends DataObject
      */
     public function PriceRetailNice()
     {
-        $price = number_format((int)$this->PriceRetail/100, 2, ',', '.');
+        $price = number_format((int)$this->PriceRetail / 100, 2, ',', '.');
         return "&euro;&nbsp;$price";
     }
 
@@ -345,7 +349,7 @@ class Presentation extends DataObject
      */
     public function PriceNice()
     {
-        $price = number_format((int)$this->Price/100, 2, ',', '.');
+        $price = number_format((int)$this->Price / 100, 2, ',', '.');
         return "&euro;&nbsp;$price";
     }
 
