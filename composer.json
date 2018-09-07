@@ -1,0 +1,25 @@
+{
+	"name": "xd/ovis",
+	"description": "Import OVIS data into your Silverstripe site",
+	"type": "silverstripe-module",
+	"keywords": ["silverstripe", "facebook", "ovis"],
+	"license": "BSD-3-Clause",
+	"authors": [
+		{
+			"name": "XD designers",
+			"email": "info@xd.nl"
+		},
+		{
+			"name": "Bram de Leeuw",
+			"email": "bram@xd.nl"
+		}
+	],
+	"require": {
+		"silverstripe/framework": ">=3.1",
+		"composer/installers": "*",
+		"guzzlehttp/guzzle": "*"
+	},
+	"extra": {
+		"installer-name": "ovis"
+	}
+}

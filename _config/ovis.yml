@@ -1,0 +1,16 @@
+---
+Name: ovis
+---
+Director:
+  rules:
+    ovis//$Action/$ID: Presentation_Controller
+    Presentation_Controller//$Action: Presentation_Controller
+
+#XD\Ovis\Ovis:
+#  api_key:
+#  search:
+#    category:
+#      - mobilehome
+#      - tenttrailer
+#      - caravan
+#      - camper
