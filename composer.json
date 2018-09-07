@@ -1,5 +1,5 @@
 {
-	"name": "xd/ovis",
+	"name": "xddesigners/silverstripe-ovis",
 	"description": "Import OVIS data into your Silverstripe site",
 	"type": "silverstripe-module",
 	"keywords": ["silverstripe", "facebook", "ovis"],
