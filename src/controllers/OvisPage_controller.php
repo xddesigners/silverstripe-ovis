@@ -100,7 +100,7 @@ class OvisPage_controller extends page_controller
      * @return PaginatedList
      * @throws Exception
      */
-    public function PaginatedOccasions()
+    public function PaginatedPresentations()
     {
         $request = $this->getRequest();
         $sortingOptions = OvisPage::config()->get('sorting_options');

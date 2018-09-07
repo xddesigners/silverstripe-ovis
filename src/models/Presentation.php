@@ -244,15 +244,6 @@ class Presentation extends DataObject
         'Divisions' => 'XD\Ovis\Models\PresentationDivision'
     ];
 
-    public function CMSThumbnail()
-    {
-        if ($image = $this->getOGImage()){
-            return $image->CMSThumbnail();
-        }
-
-        return null;
-    }
-
     public function onBeforeWrite()
     {
         parent::onBeforeWrite();
@@ -317,16 +308,34 @@ class Presentation extends DataObject
     }
 
     /**
-     * Override the default Open Graph Image
+     * Get the default Image
      *
-     * @return \Image|null
+     * @return PresentationMedia
      */
-    function getOGImage()
+    public function getDefaultImage()
     {
         /** @var $image PresentationMedia */
         if (($image = $this->Media()->find('Default', true)) && $image->exists()) {
-            return $image->Fill(1200, 630);
+            return $image;
         } elseif (($image = $this->Media()->first()) && $image->exists()) {
+            return $image;
+        }
+
+        return PresentationMedia::singleton();
+    }
+
+    public function CMSThumbnail()
+    {
+        if ($image = $this->getDefaultImage()){
+            return $image->CMSThumbnail();
+        }
+
+        return null;
+    }
+
+    function getOGImage()
+    {
+        if ($image = $this->getDefaultImage()){
             return $image->Fill(1200, 630);
         }
 

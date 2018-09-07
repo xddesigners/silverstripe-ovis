@@ -48,6 +48,11 @@ class Presentation_Controller extends Page_Controller
      */
     public function OrderForm()
     {
+        $slug = $this->getRequest()->param('ID');
+        if (!$presentation = $this->presentation) {
+            $presentation = DataObject::get_one('XD\Ovis\Models\Presentation', ['Slug' => $slug]);
+        }
+
         $fields = FieldList::create(
             TextField::create('Name', _t('OvisOrderForm.Name', 'Name')),
             EmailField::create('Email', _t('OvisOrderForm.Email', 'Email')),
@@ -55,12 +60,9 @@ class Presentation_Controller extends Page_Controller
             TextField::create('Address', _t('OvisOrderForm.Address', 'Address')),
             TextField::create('PostalCode', _t('OvisOrderForm.PostalCode', 'Postal code')),
             TextField::create('Locality', _t('OvisOrderForm.Locality', 'Locality')),
-            TextareaField::create('Question', _t('OvisOrderForm.Question', 'Additional questions'))
+            TextareaField::create('Question', _t('OvisOrderForm.Question', 'Additional questions')),
+            HiddenField::create('PresentationID', 'PresentationID', $presentation->ID)
         );
-
-        if ($presentation = $this->presentation) {
-            $fields->push(HiddenField::create('PresentationID', 'PresentationID', $presentation->ID));
-        }
 
         $actions = FieldList::create(
             FormAction::create('Order', _t('OvisOrderForm.Order', 'Order'))
@@ -77,6 +79,7 @@ class Presentation_Controller extends Page_Controller
 
         try {
             $order->write();
+            $order->createEmail()->send();
             $form->sessionMessage(
                 _t('OvisOrderForm.Success', 'Thank you for your order'),
                 'good'
