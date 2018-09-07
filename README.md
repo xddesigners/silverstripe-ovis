@@ -15,4 +15,12 @@ XD\Ovis\Ovis:
       - tenttrailer
       - caravan
       - camper
+
+XD\Ovis\Models\Order:
+  email_from: 'YOUR_FROM_ADDRESS' # defaults to Email.admin_email
+  email_to: 'YOUR_TO_ADDRESS' # defaults to Email.admin_email
 ```
+
+### Set up import script
+You can run the import script manually trough the dev/tasks interface or set up up to run as a cron task. 
+`http://example.com/dev/tasks/XD-Ovis-Tasks-Import` or `sake dev/tasks/XD-Ovis-Tasks-Import`
