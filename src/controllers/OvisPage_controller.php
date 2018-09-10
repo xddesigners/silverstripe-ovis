@@ -57,7 +57,6 @@ class OvisPage_controller extends page_controller
 
         $currentSortingValue = $request->getVar('Sort') ? $request->getVar('Sort') : array_search(current($sortingOptions), $sortingOptions);
         $sort = new DropdownField('Sort', _t('OvisPage.Sort', 'Sort'), $sortingOptions, $currentSortingValue);
-        $sort->addExtraClass('large-4 small-6 columns sort');
         $fields->add($sort);
 
         $actions = FieldList::create(
@@ -65,7 +64,9 @@ class OvisPage_controller extends page_controller
             FormAction::create('reset')->setTitle(_t('OVISPage.RESET', 'Reset Filters'))
         );
 
-        return Form::create($this, 'Filters', $fields, $actions);
+        $form = Form::create($this, 'Filters', $fields, $actions);
+        $this->extend('updateFilterForm', $form);
+        return $form;
     }
 
     /**

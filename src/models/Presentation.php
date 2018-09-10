@@ -2,10 +2,12 @@
 
 namespace XD\Ovis\Models;
 
+use ArrayData;
 use DataObject;
 use Director;
 use HasManyList;
 use ManyManyList;
+use SSViewer;
 use URLSegmentFilter;
 
 /**
@@ -258,6 +260,11 @@ class Presentation extends DataObject
         }
     }
 
+    public function getMenuTitle()
+    {
+        return $this->Title;
+    }
+
     public function Link()
     {
         return "ovis/presentation/{$this->Slug}";
@@ -371,6 +378,23 @@ class Presentation extends DataObject
         }
 
         return null;
+    }
+
+    /**
+     * Make compatible with breadcrumb templates
+     * @see \SiteTree::getBreadcrumbs()
+     *
+     * @return \HTMLText
+     */
+    public function getBreadCrumbs()
+    {
+        $parent = $this->getParent();
+        $pages = $parent->getBreadcrumbItems(20, false, false);
+        $pages->add($this);
+        $template = new SSViewer('BreadcrumbsTemplate');
+        return $template->process($parent->customise(new ArrayData(array(
+            'Pages' => $pages
+        ))));
     }
 
     /**
