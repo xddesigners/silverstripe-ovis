@@ -1,5 +1,7 @@
 <?php
 
+use XD\Ovis\Models\Presentation;
+
 /**
  * OVISPage
  * @property string Category
@@ -42,8 +44,11 @@ class OvisPage extends Page
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
+        $categories = Presentation::get()->column('Category');
+        $categories = array_map('ucwords', array_combine($categories, $categories));
+        $categories['All'] = 'All';
         $fields->addFieldsToTab('Root.Main', [
-            TextField::create('Category', 'Category')
+            DropdownField::create('Category', 'Category', $categories)
         ], 'Content');
 
         return $fields;

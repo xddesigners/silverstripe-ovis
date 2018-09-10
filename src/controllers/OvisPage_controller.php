@@ -108,6 +108,7 @@ class OvisPage_controller extends page_controller
             ? $request->getVar('Sort')
             : array_search(current($sortingOptions), $sortingOptions);
 
+
         $filters = $this->getField('Category') != 'All'
             ? array('Category' => $this->Category)
             : array();

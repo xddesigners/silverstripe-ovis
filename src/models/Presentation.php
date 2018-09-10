@@ -4,11 +4,8 @@ namespace XD\Ovis\Models;
 
 use DataObject;
 use Director;
-use FieldList;
 use HasManyList;
 use ManyManyList;
-use Tab;
-use TabSet;
 use URLSegmentFilter;
 
 /**
@@ -247,11 +244,11 @@ class Presentation extends DataObject
     public function onBeforeWrite()
     {
         parent::onBeforeWrite();
-        $this->Title = trim(implode(' ', [
+        $this->Title = ucwords(trim(implode(' ', [
             $this->Brand,
             $this->Model,
             $this->Version
-        ]));
+        ])));
 
         $segmentFilter = URLSegmentFilter::create();
         if (($slug = $segmentFilter->filter($this->Title)) && !self::get()->find('Slug', $slug)) {
@@ -259,15 +256,6 @@ class Presentation extends DataObject
         } else {
             $this->Slug = $slug = $segmentFilter->filter("$this->ID $this->Title");;
         }
-    }
-
-    public function getTitle()
-    {
-        return trim(implode(' ', [
-            $this->Brand,
-            $this->Model,
-            $this->Version
-        ]));
     }
 
     public function Link()
@@ -376,7 +364,13 @@ class Presentation extends DataObject
      */
     public function getParent()
     {
-        return DataObject::get_one('OvisPage');
+        if ($page = DataObject::get_one('OvisPage', ['Category' => $this->Category])) {
+            return $page;
+        } elseif ($page = DataObject::get_one('OvisPage')) {
+            return $page;
+        }
+
+        return null;
     }
 
     /**
