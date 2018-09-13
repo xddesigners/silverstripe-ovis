@@ -245,7 +245,11 @@ class Import extends BuildTask
             }
 
             // Lay-out divisions
-            if (($divisions = $presentation->specifications->specsCaravan->division) && is_array($divisions)) {
+            if (
+                ($specs = $presentation->specifications->specsCaravan) &&
+                ($divisions = $specs->division) &&
+                is_array($divisions)
+            ) {
                 foreach ($divisions as $division) {
                     self::importDivision($division, $importObj);
                 }
