@@ -32,5 +32,5 @@
 </dl>
 
 <% if $Question %>
-    <p>Question</p>
+    <p>$Question</p>
 <% end_if %>
