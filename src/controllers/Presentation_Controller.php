@@ -69,7 +69,9 @@ class Presentation_Controller extends Page_Controller
         );
 
         $required = new RequiredFields(array('Name', 'Email'));
-        return Form::create($this, 'OrderForm', $fields, $actions, $required);
+        $form = Form::create($this, 'OrderForm', $fields, $actions, $required);
+        $this->extend('updateOrderForm', $form);
+        return $form;
     }
 
     /**

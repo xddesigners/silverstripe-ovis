@@ -60,8 +60,8 @@ class OvisPage_controller extends page_controller
         $fields->add($sort);
 
         $actions = FieldList::create(
-            FormAction::create('search')->setTitle(_t('OVISPage.SEARCH', 'Zoeken')),
-            FormAction::create('reset')->setTitle(_t('OVISPage.RESET', 'Reset Filters'))
+            FormAction::create('search')->setTitle(_t('OvisPage.Search', 'Search')),
+            FormAction::create('reset')->setTitle(_t('OvisPage.Reset', 'Reset filters'))
         );
 
         $form = Form::create($this, 'Filters', $fields, $actions);
@@ -166,7 +166,7 @@ class OvisPage_controller extends page_controller
         $brands = Presentation::get()->sort('Brand ASC')->column('Brand');
         $brands = array_map('ucfirst', array_combine($brands, $brands));
 
-        $brands[] = _t('Ovis.ALL_BRANDS', 'All brands');
+        $brands[] = _t('OvisPage.Filter_AllBrands', 'All brands');
         $brands = array_reverse($brands, true);
 
         return $brands;

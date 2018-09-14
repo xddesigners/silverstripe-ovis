@@ -2,6 +2,7 @@ nl:
   OvisPage:
     Filter_Title: 'Trefword'
     Filter_Brand: 'Merk'
+    Filter_AllBrands: 'Alle merken'
     Filter_Price_From: 'Prijs van'
     Filter_Price_Till: 'Prijs tot'
     Filter_ConstructionYear_From: 'Bouwjaar van'
@@ -11,3 +12,13 @@ nl:
     Filter_NumberOfSleepingPlaces_From: 'Slaapplaatsen van'
     Filter_NumberOfSleepingPlaces_Till: 'Slaapplaatsen tot'
     Sort: 'Sorteren'
+    Search: 'Zoeken'
+    Reset: 'Reset filters'
+  OvisOrderForm:
+    Name: 'Naam'
+    Email: 'E-mail'
+    Phone: 'Telefoon'
+    Address: 'Adres'
+    PostalCode: 'Postcode'
+    Locality: 'Plaats'
+    Question: 'Uw vraag'
