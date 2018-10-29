@@ -175,8 +175,11 @@ class Import extends BuildTask
         $toDeleteItems = array_diff($this->oldManifest, $this->newManifest);
         foreach ($toDeleteItems as $id => $ovisId) {
             DataObject::delete_by_id('XD\Ovis\Models\Presentation', $id);
-            self::log("[DELETED] presentation $id", self::ERROR);
+            self::log("[DELETED] presentation $id", self::NOTICE);
         }
+        
+        self::log('Finished: no pages left to query', self::SUCCESS);
+        exit(self::SUCCESS);
     }
 
     public function search($page = 1)
@@ -208,9 +211,6 @@ class Import extends BuildTask
 
             if ($searchResponseDescription->totalInSet === $searchResponseDescription->itemsPerPage) {
                 $this->search(($page + 1));
-            } else {
-                self::log('Finished: no pages left to query', self::SUCCESS);
-                exit(self::SUCCESS);
             }
         }
     }
