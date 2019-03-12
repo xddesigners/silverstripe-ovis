@@ -305,10 +305,14 @@ class Import extends BuildTask
     private static function importMedia($image, &$presentation)
     {
         $url = $image->traditional->original->clean->url;
-        $fileInfo = pathinfo($url);
+        $urlInfo = parse_url($url);
+        $urlPath = $urlInfo['path'];
+        // Fix: Remove rubbish that OVIS added (/large/normalfitcanvas/blank) after the .jpg filename.
+        $exploded = array_filter(explode('/', $urlPath));
+        $fileName = array_shift($exploded);
         $folder = Folder::find_or_make("/ovismedia/{$presentation->ID}");
-        $path = $folder->getFullPath() . $fileInfo['basename'];
-        $relativePath = $folder->getRelativePath() . $fileInfo['basename'];
+        $path = $folder->getFullPath() . $fileName;
+        $relativePath = $folder->getRelativePath() . $fileName;
 
         if (!file_exists($path)) {
             try {
@@ -328,7 +332,7 @@ class Import extends BuildTask
         }
 
         /** @var PresentationMedia $media */
-        if (!$media = $presentation->Media()->find('Name', $fileInfo['basename'])) {
+        if (!$media = $presentation->Media()->find('Name', $fileName)) {
             $media = PresentationMedia::create();
             $media->setFilename($relativePath);
             $media->setParentID($folder->ID);

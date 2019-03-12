@@ -91,7 +91,7 @@ class Order extends DataObject
         }
 
         if (!$to = self::config()->get('email_to')) {
-            $to = Email::config()->get('admin_to');
+            $to = Email::config()->get('admin_email');
         }
 
         return Email::create($from, $to, $this->getTitle())
