@@ -21,11 +21,11 @@
             </div>
         <% end_loop %>
     <% else %>
-        <h3><%t OvisPage.NoPresentations 'No presentations found' %></h3>
+        <h3><%t XD\Ovis\Models\OvisPage.NoPresentations 'No presentations found' %></h3>
     <% end_if %>
 </div>
 <% with $PaginatedPresentations %>
     <div class="row column">
-        <% include Pagination %>
+        <% include XD\Ovis\Includes\Pagination %>
     </div>
 <% end_with %>

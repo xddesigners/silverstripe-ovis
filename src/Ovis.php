@@ -2,11 +2,11 @@
 
 namespace XD\Ovis;
 
-use Config;
-use Convert;
+use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\ResponseInterface;
+use SilverStripe\Core\Config\Configurable;
 use Exception;
 use GuzzleHttp\Client;
-use XD\Ovis\Models\Presentation;
 
 /**
  * Class Ovis
@@ -15,6 +15,8 @@ use XD\Ovis\Models\Presentation;
  */
 class Ovis
 {
+    use Configurable;
+
     const API = 'https://api.ovis.nl/';
     const API_SANDBOX = 'https://api-develop.ovis.nl/';
     const EXCEPTION_NO_API_KEY = 1;
@@ -39,9 +41,9 @@ class Ovis
      * Search the API
      *
      * @param array $query will be merged with the static search params set in the config.
-     * @return \Psr\Http\Message\ResponseInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Exception
+     * @return ResponseInterface
+     * @throws GuzzleException
+     * @throws Exception
      */
     public static function search($query = array())
     {
@@ -50,16 +52,16 @@ class Ovis
         }
 
         return self::client()->request('POST', 'search/', [
-            'body' => Convert::array2json($query)
+            'body' => json_encode($query)
         ]);
     }
 
     /**
      * Get the available brands and categories
      *
-     * @return \Psr\Http\Message\ResponseInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Exception
+     * @return ResponseInterface
+     * @throws GuzzleException
+     * @throws Exception
      */
     public static function brands()
     {
@@ -69,14 +71,14 @@ class Ovis
     /**
      * Retrieve the client minMax values
      *
-     * @return \Psr\Http\Message\ResponseInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Exception
+     * @return ResponseInterface
+     * @throws GuzzleException
+     * @throws Exception
      */
     public static function minMax()
     {
         return self::client()->request('POST', 'search/minmax/client', [
-            'body' => Convert::array2json(['selection' => ['clean', 'sold', 'noimage']])
+            'body' => json_encode(['selection' => ['clean', 'sold', 'noimage']])
         ]);
     }
 
@@ -154,15 +156,5 @@ class Ovis
                 'Accept-Encoding' => 'gzip, deflate, br',
             ]
         ]);
-    }
-
-    /**
-     * Get the config for this class
-     *
-     * @return \Config_ForClass
-     */
-    public static function config()
-    {
-        return Config::inst()->forClass(get_called_class());
     }
 }

@@ -2,8 +2,8 @@
 
 namespace XD\Ovis\Models;
 
-use DataObject;
-use Email;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Control\Email\Email;
 
 /**
  * Class Order
@@ -22,7 +22,7 @@ use Email;
  */
 class Order extends DataObject
 {
-    private static $table_name = 'Order';
+    private static $table_name = 'Ovis_Order';
 
     private static $singular_name = 'Order';
 
@@ -45,19 +45,19 @@ class Order extends DataObject
     private static $email_to = null;
 
     private static $db = [
-        'Name' => 'Varchar(255)',
-        'Email' => 'Varchar(255)',
-        'Phone' => 'Varchar(255)',
-        'Address' => 'Varchar(255)',
-        'PostalCode' => 'Varchar(255)',
-        'Locality' => 'Varchar(255)',
-        'Question' => 'Varchar(255)',
+        'Name' => 'Varchar',
+        'Email' => 'Varchar',
+        'Phone' => 'Varchar',
+        'Address' => 'Varchar',
+        'PostalCode' => 'Varchar',
+        'Locality' => 'Varchar',
+        'Question' => 'Varchar',
     ];
 
     private static $default_sort = 'Created DESC';
 
     private static $has_one = [
-        'Presentation' => 'XD\Ovis\Models\Presentation'
+        'Presentation' => Presentation::class
     ];
 
     private static $summary_fields = [
@@ -96,7 +96,7 @@ class Order extends DataObject
 
         return Email::create($from, $to, $this->getTitle())
             ->setReplyTo($this->Email)
-            ->setTemplate('OrderEmail')
+            ->setTemplate('XD\Ovis\Email\OrderEmail')
             ->populateTemplate($this);
     }
 }

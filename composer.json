@@ -17,9 +17,7 @@
 	"require": {
 		"silverstripe/framework": ">=3.1",
 		"composer/installers": "*",
-		"guzzlehttp/guzzle": "*"
-	},
-	"extra": {
-		"installer-name": "ovis"
+		"guzzlehttp/guzzle": "*",
+		"ext-json": "*"
 	}
 }

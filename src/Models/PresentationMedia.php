@@ -2,7 +2,7 @@
 
 namespace XD\Ovis\Models;
 
-use Image;
+use SilverStripe\Assets\Image;
 
 /**
  * Class PresentationMedia
@@ -16,7 +16,7 @@ use Image;
  */
 class PresentationMedia extends Image
 {
-    private static $table_name = 'PresentationMedia';
+    private static $table_name = 'Ovis_PresentationMedia';
 
     private static $singular_name = 'Media';
 
@@ -30,7 +30,7 @@ class PresentationMedia extends Image
     private static $default_sort = 'Sort ASC';
 
     private static $has_one = array(
-        'Presentation' => 'XD\Ovis\Models\Presentation'
+        'Presentation' => Presentation::class
     );
 
     private static $summary_fields = [

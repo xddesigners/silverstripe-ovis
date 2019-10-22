@@ -2,7 +2,7 @@
 
 namespace XD\Ovis\Admin;
 
-use ModelAdmin;
+use SilverStripe\Admin\ModelAdmin;
 
 /**
  * Class OvisAdmin

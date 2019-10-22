@@ -2,7 +2,8 @@
 
 namespace XD\Ovis\Models;
 
-use DataObject;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\ValidationException;
 use XD\Ovis\Schemas\PresentationSpecificationsBed;
 
 /**
@@ -17,7 +18,7 @@ use XD\Ovis\Schemas\PresentationSpecificationsBed;
  */
 class PresentationBed extends DataObject
 {
-    private static $table_name = 'PresentationBed';
+    private static $table_name = 'Ovis_PresentationBed';
 
     private static $singular_name = 'Bed';
 
@@ -26,7 +27,7 @@ class PresentationBed extends DataObject
     private static $db = [
         'Length' => 'Int',
         'Width' => 'Int',
-        'Type' => 'Varchar(255)',
+        'Type' => 'Varchar',
     ];
 
     private static $summary_fields = [
@@ -42,8 +43,8 @@ class PresentationBed extends DataObject
 
     /**
      * @param PresentationSpecificationsBed $bed
-     * @return PresentationBed
-     * @throws \ValidationException
+     * @return DataObject|PresentationBed
+     * @throws ValidationException
      */
     public static function findOrMake($bed)
     {

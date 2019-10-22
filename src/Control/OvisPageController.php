@@ -1,24 +1,30 @@
 <?php
 
+namespace XD\Ovis\Control;
+
+use PageController;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\Form;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\PaginatedList;
+use XD\Ovis\Models\OvisPage;
 use XD\Ovis\Models\Presentation;
 use XD\Ovis\Ovis;
 
 /**
- * Class OvisPage_controller
+ * Class OvisPageController
  * @mixin OvisPage
  *
  * @method OvisPage data
  */
-class OvisPage_controller extends page_controller
+class OvisPageController extends PageController
 {
     private static $allowed_actions = array(
         'Filters'
     );
-
-    public function init()
-    {
-        parent::init();
-    }
 
     /**
      * Create the filter interface
@@ -147,6 +153,7 @@ class OvisPage_controller extends page_controller
     {
         if (count(explode(' ', $sort)) === 2) {
             $sort = explode(' ', $sort);
+            // FIX
             $fields = DataObject::database_fields('XD\Ovis\Models\Presentation');
             $sortingColumnExists = array_key_exists($sort[0], $fields);
             $sortingOptionAvailable = array_key_exists($sort[1], array_flip(array('ASC', 'DESC')));

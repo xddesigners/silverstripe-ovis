@@ -1,6 +1,11 @@
 <?php
 
+namespace XD\Ovis\Models;
+
+use Page;
+use SilverStripe\Forms\DropdownField;
 use XD\Ovis\Models\Presentation;
+
 
 /**
  * OVISPage
@@ -8,8 +13,10 @@ use XD\Ovis\Models\Presentation;
  */
 class OvisPage extends Page
 {
+    private static $table_name = 'Ovis_OvisPage';
+
     private static $db = array(
-        'Category' => 'Varchar(255)'
+        'Category' => 'Varchar'
     );
 
     private static $defaults = array(

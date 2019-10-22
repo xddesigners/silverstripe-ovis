@@ -2,8 +2,9 @@
 
 namespace XD\Ovis\Models;
 
-use DataObject;
-use ManyManyList;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\ManyManyList;
+use SilverStripe\ORM\ValidationException;
 use XD\Ovis\Schemas\PresentationSpecificationsAccessorySub;
 use XD\Ovis\Schemas\PresentationSpecificationsSpecsDivision;
 
@@ -20,16 +21,16 @@ use XD\Ovis\Schemas\PresentationSpecificationsSpecsDivision;
  */
 class PresentationAccessorySub extends DataObject
 {
-    private static $table_name = 'PresentationAccessorySub';
+    private static $table_name = 'Ovis_PresentationAccessorySub';
 
     private static $singular_name = 'Accessory sub section';
 
     private static $plural_name = 'Accessory sub sections';
 
     private static $db = [
-        'Label' => 'Varchar(255)',
-        'Units' => 'Varchar(255)',
-        'Value' => 'Varchar(255)',
+        'Label' => 'Varchar',
+        'Units' => 'Varchar',
+        'Value' => 'Varchar',
     ];
 
     private static $summary_fields = [
@@ -49,8 +50,8 @@ class PresentationAccessorySub extends DataObject
 
     /**
      * @param PresentationSpecificationsAccessorySub $accessorySub
-     * @return PresentationAccessorySub
-     * @throws \ValidationException
+     * @return DataObject|PresentationAccessorySub
+     * @throws ValidationException
      */
     public static function findOrMake($accessorySub)
     {

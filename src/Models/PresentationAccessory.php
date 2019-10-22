@@ -2,8 +2,8 @@
 
 namespace XD\Ovis\Models;
 
-use DataObject;
-use ManyManyList;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\ManyManyList;
 use XD\Ovis\Schemas\PresentationSpecificationsSpecsDivision;
 
 /**
@@ -20,19 +20,19 @@ use XD\Ovis\Schemas\PresentationSpecificationsSpecsDivision;
  */
 class PresentationAccessory extends DataObject
 {
-    private static $table_name = 'PresentationAccessory';
+    private static $table_name = 'Ovis_PresentationAccessory';
 
     private static $singular_name = 'Accessory';
 
     private static $plural_name = 'Accessories';
 
     private static $db = [
-        'Category' => 'Varchar(255)',
-        'Description' => 'Varchar(255)',
+        'Category' => 'Varchar',
+        'Description' => 'Varchar',
     ];
 
     private static $has_one = [
-        'Presentation' => 'XD\Ovis\Models\Presentation'
+        'Presentation' => Presentation::class
     ];
 
     private static $many_many = [

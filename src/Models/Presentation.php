@@ -2,13 +2,16 @@
 
 namespace XD\Ovis\Models;
 
-use ArrayData;
-use DataObject;
-use Director;
-use HasManyList;
-use ManyManyList;
-use SSViewer;
-use URLSegmentFilter;
+use SilverStripe\ORM\DataList;
+use SilverStripe\ORM\FieldType\DBHTMLText;
+use SilverStripe\ORM\ValidationException;
+use SilverStripe\View\ArrayData;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Control\Director;
+use SilverStripe\ORM\HasManyList;
+use SilverStripe\ORM\ManyManyList;
+use SilverStripe\View\SSViewer;
+use SilverStripe\View\Parsers\URLSegmentFilter;
 
 /**
  * Class Presentation
@@ -113,25 +116,25 @@ use URLSegmentFilter;
  */
 class Presentation extends DataObject
 {
-    private static $table_name = 'Presentation';
+    private static $table_name = 'Ovis_Presentation';
 
     private static $singular_name = 'Presentation';
 
     private static $plural_name = 'Presentations';
 
     private static $db = [
-        'Title' => 'Varchar(255)',
-        'Slug' => 'Varchar(255)',
+        'Title' => 'Varchar',
+        'Slug' => 'Varchar',
         // XD\Ovis\Schemas\Presentation
         'OvisID' => 'Int',
-        'OvisCreated' => 'SS_DateTime',
-        'OvisUpdated' => 'SS_DateTime',
+        'OvisCreated' => 'DBDatetime',
+        'OvisUpdated' => 'DBDatetime',
         'UserID' => 'Int',
         'ExternalAdID' => 'Int',
-        'GUID' => 'Varchar(255)',
-        'Realm' => 'Varchar(255)',
+        'GUID' => 'Varchar',
+        'Realm' => 'Varchar',
         'Locale' => 'Varchar(5)',
-        'Status' => 'Varchar(255)',
+        'Status' => 'Varchar',
         // XD\Ovis\Schemas\PresentationMedia
         'Media360Link' => 'Text',
         'MediaPDFLink' => 'Text',
@@ -142,13 +145,13 @@ class Presentation extends DataObject
         'BannerKampeerkredietLink' => 'Text',
         'BannerFinanplazaLink' => 'Text',
         // XD\Ovis\Schemas\PresentationSpecifications
-        'Category' => 'Varchar(255)',
-        'Brand' => 'Varchar(255)',
-        'Model' => 'Varchar(255)',
-        'Version' => 'Varchar(255)',
-        'TitleSuffix' => 'Varchar(255)',
-        'LicensePlate' => 'Varchar(255)',
-        'ChassisNumber' => 'Varchar(255)',
+        'Category' => 'Varchar',
+        'Brand' => 'Varchar',
+        'Model' => 'Varchar',
+        'Version' => 'Varchar',
+        'TitleSuffix' => 'Varchar',
+        'LicensePlate' => 'Varchar',
+        'ChassisNumber' => 'Varchar',
         'Description' => 'HTMLText',
         'Memo' => 'Text',
         'New' => 'Boolean',
@@ -167,15 +170,15 @@ class Presentation extends DataObject
         'ConstructionYear' => 'Int',
         'ConstructionMonth' => 'Int',
         'ModelYear' => 'Int',
-        'DateArrival' => 'SS_DateTime',
-        'DatePart1a' => 'SS_DateTime',
-        'DatePurchased' => 'SS_DateTime',
+        'DateArrival' => 'DBDatetime',
+        'DatePart1a' => 'DBDatetime',
+        'DatePurchased' => 'DBDatetime',
         // XD\Ovis\Schemas\PresentationSpecificationsMediator
         'MediatorEnabled' => 'Boolean',
-        'MediatorName' => 'Varchar(255)',
-        'MediatorPhoneNumber' => 'Varchar(255)',
-        'MediatorEmail' => 'Varchar(255)',
-        'MediatorDescription' => 'Varchar(255)',
+        'MediatorName' => 'Varchar',
+        'MediatorPhoneNumber' => 'Varchar',
+        'MediatorEmail' => 'Varchar',
+        'MediatorDescription' => 'Varchar',
         // XD\Ovis\Schemas\PresentationSpecificationsWeights
         'LengthConstruction' => 'Int',
         'LengthTotal' => 'Int',
@@ -192,22 +195,22 @@ class Presentation extends DataObject
         'Bedrooms' => 'Int',
         // XD\Ovis\Schemas\PresentationSpecificationsWarranty
         'Bovag' => 'Boolean',
-        'BovagEndDate' => 'SS_DateTime',
+        'BovagEndDate' => 'DBDatetime',
         'BovagMonths' => 'Int',
         'BovagDescription' => 'Text',
         'Factory' => 'Boolean',
-        'FactoryEndDate' => 'SS_DateTime',
+        'FactoryEndDate' => 'DBDatetime',
         'FactoryMonths' => 'Int',
         'FactoryMileage' => 'Int',
         'FactoryDescription' => 'Text',
         'MiscWarranty' => 'Boolean',
-        'MiscEndDate' => 'SS_DateTime',
+        'MiscEndDate' => 'DBDatetime',
         'MiscMonths' => 'Int',
         'MiscMileage' => 'Boolean',
         'MiscDescription' => 'Text',
         // XD\Ovis\Schemas\PresentationSpecificationPrices
         'Price' => 'Int',
-        'PriceRetail' => 'Varchar(255)',
+        'PriceRetail' => 'Varchar',
         'PriceDisplay' => 'Int',
         'CostsRoadworthy' => 'Int',
         'PriceTakeout' => 'Int',
@@ -217,7 +220,7 @@ class Presentation extends DataObject
         'PricePurchase' => 'Int',
         'PriceValuation' => 'Int',
         'PriceSold' => 'Int',
-        'VAT' => 'Varchar(255)',
+        'VAT' => 'Varchar',
         // TODO XD\Ovis\Schemas\PresentationSpecificationPricesRental
     ];
 
@@ -234,13 +237,13 @@ class Presentation extends DataObject
     ];
 
     private static $has_many = [
-        'Media' => 'XD\Ovis\Models\PresentationMedia',
-        'Accessories' => 'XD\Ovis\Models\PresentationAccessory' // todo can this be a many_many join .. ?
+        'Media' => PresentationMedia::class,
+        'Accessories' => PresentationAccessory::class // todo can this be a many_many join .. ?
     ];
 
     private static $many_many = [
-        'Beds' => 'XD\Ovis\Models\PresentationBed',
-        'Divisions' => 'XD\Ovis\Models\PresentationDivision'
+        'Beds' => PresentationBed::class,
+        'Divisions' => PresentationDivision::class
     ];
 
     public function onBeforeWrite()
@@ -289,7 +292,7 @@ class Presentation extends DataObject
      *
      * @param $ovisID
      * @return DataObject|null|Presentation
-     * @throws \ValidationException
+     * @throws ValidationException
      */
     public static function findOrMake($ovisID)
     {
@@ -367,7 +370,7 @@ class Presentation extends DataObject
     /**
      * Return a Ovis Page instance
      *
-     * @return DataObject|\OvisPage
+     * @return DataObject|OvisPage
      */
     public function getParent()
     {
@@ -382,9 +385,9 @@ class Presentation extends DataObject
 
     /**
      * Make compatible with breadcrumb templates
-     * @see \SiteTree::getBreadcrumbs()
+     * @see SiteTree::getBreadcrumbs()
      *
-     * @return \HTMLText
+     * @return DBHTMLText
      */
     public function getBreadCrumbs()
     {
@@ -401,7 +404,7 @@ class Presentation extends DataObject
      * Return presentations from the same brand
      *
      * @param int $limit
-     * @return \DataList
+     * @return DataList
      */
     public function getSimilarPresentations($limit = 8)
     {

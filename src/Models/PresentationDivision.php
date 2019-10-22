@@ -2,7 +2,8 @@
 
 namespace XD\Ovis\Models;
 
-use DataObject;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\ValidationException;
 use XD\Ovis\Schemas\PresentationSpecificationsSpecsDivision;
 
 /**
@@ -16,15 +17,15 @@ use XD\Ovis\Schemas\PresentationSpecificationsSpecsDivision;
  */
 class PresentationDivision extends DataObject
 {
-    private static $table_name = 'PresentationDivision';
+    private static $table_name = 'Ovis_PresentationDivision';
 
     private static $singular_name = 'Division';
 
     private static $plural_name = 'Divisions';
 
     private static $db = [
-        'Category' => 'Varchar(255)',
-        'Division' => 'Varchar(255)',
+        'Category' => 'Varchar',
+        'Division' => 'Varchar',
     ];
 
     private static $summary_fields = [
@@ -42,8 +43,8 @@ class PresentationDivision extends DataObject
 
     /**
      * @param PresentationSpecificationsSpecsDivision $division
-     * @return PresentationDivision
-     * @throws \ValidationException
+     * @return DataObject|PresentationDivision
+     * @throws ValidationException
      */
     public static function findOrMake($division)
     {

@@ -2,10 +2,12 @@
 
 namespace XD\Ovis\Tasks;
 
-use BuildTask;
-use Convert;
-use DataObject;
-use Folder;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use SilverStripe\Dev\BuildTask;
+use SilverStripe\Core\Convert;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Assets\Folder;
 use XD\Ovis\Models\PresentationAccessory;
 use XD\Ovis\Models\PresentationAccessorySub;
 use XD\Ovis\Models\PresentationBed;
@@ -34,7 +36,9 @@ class Import extends BuildTask
     const ERROR = 3;
 
     protected $title = 'Import the OVIS data';
+
     protected $description = 'Import the OVIS data';
+
     protected $enabled = true;
 
     /**
@@ -186,11 +190,11 @@ class Import extends BuildTask
     {
         try {
             $result = Ovis::search(['itemsPerPage' => 100, 'page' => $page]);
-        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+        } catch (GuzzleException $e) {
             self::log($e->getMessage(), self::ERROR);
             self::log('Could not parse the OVIS API', self::ERROR);
             exit(self::ERROR);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             self::log('No search query is set', self::ERROR);
             exit(self::ERROR);
         }
@@ -265,7 +269,7 @@ class Import extends BuildTask
             $importObj->write();
             self::log("[Presentation][{$importObj->ID}] Created presentation {$importObj->getTitle()}", self::SUCCESS);
             return $importObj;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             self::log($e->getMessage(), self::ERROR);
         }
 
@@ -276,7 +280,7 @@ class Import extends BuildTask
      * Loop the given data map and possible sub maps
      *
      * @param array $map
-     * @param \XD\Ovis\Models\Presentation $object
+     * @param Presentation $object
      * @param \XD\Ovis\Schemas\Presentation $data
      */
     private static function loop_map($map, &$object, $data)
@@ -326,7 +330,7 @@ class Import extends BuildTask
                 } else {
                     self::log("Downloaded media {$url}", self::SUCCESS);
                 }
-            } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            } catch (GuzzleException $e) {
                 self::log($e->getMessage(), self::ERROR);
             }
         }
@@ -348,7 +352,7 @@ class Import extends BuildTask
             try {
                 $media->write();
                 self::log("[PresentationMedia][Updated] {$media->getTitle()}", self::SUCCESS);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 self::log($e->getMessage(), self::ERROR);
             }
         }
@@ -366,7 +370,7 @@ class Import extends BuildTask
             $bed = PresentationBed::findOrMake($bed);
             $presentation->Beds()->add($bed);
             self::log("[PresentationBed][{$bed->ID}] {$bed->getTitle()}", self::SUCCESS);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             self::log($e->getMessage(), self::ERROR);
         }
     }
@@ -383,7 +387,7 @@ class Import extends BuildTask
             $division = PresentationDivision::findOrMake($division);
             $presentation->Divisions()->add($division);
             self::log("[PresentationDivision][{$division->ID}] {$division->getTitle()}", self::SUCCESS);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             self::log($e->getMessage(), self::ERROR);
         }
     }
@@ -414,13 +418,13 @@ class Import extends BuildTask
                         $sub = PresentationAccessorySub::findOrMake($sub);
                         $accessoryObj->Sub()->add($sub);
                         self::log("[PresentationAccessorySub][{$sub->ID}] {$sub->getTitle()}", self::SUCCESS);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         self::log($e->getMessage(), self::ERROR);
                     }
                 }
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             self::log($e->getMessage(), self::ERROR);
         }
     }

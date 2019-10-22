@@ -1,8 +1,18 @@
 <?php
 
-//namespace XD\Ovis\Control;
+namespace XD\Ovis\Control;
 
-
+use Exception;
+use PageController;
+use SilverStripe\Forms\EmailField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\Form;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\HiddenField;
+use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\TextareaField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataObject;
 use XD\Ovis\Models\Order;
 use XD\Ovis\Models\Presentation;
 
@@ -10,7 +20,7 @@ use XD\Ovis\Models\Presentation;
  * Class PresentationController
  * @property Presentation dataRecord
  */
-class Presentation_Controller extends Page_Controller
+class PresentationController extends PageController
 {
     private static $allowed_actions = [
         'presentation',
@@ -34,7 +44,7 @@ class Presentation_Controller extends Page_Controller
     public function presentation()
     {
         $slug = $this->getRequest()->param('ID');
-        if ($this->presentation = DataObject::get_one('XD\Ovis\Models\Presentation', ['Slug' => $slug])) {
+        if ($this->presentation = DataObject::get_one(Presentation::class, ['Slug' => $slug])) {
             return $this->customise($this->presentation)->renderWith(['OvisPresentation', 'Page']);
         } else {
             return $this->httpError(404, 'Not Found');
@@ -50,17 +60,17 @@ class Presentation_Controller extends Page_Controller
     {
         $slug = $this->getRequest()->param('ID');
         if (!$presentation = $this->presentation) {
-            $presentation = DataObject::get_one('XD\Ovis\Models\Presentation', ['Slug' => $slug]);
+            $presentation = DataObject::get_one(Presentation::class, ['Slug' => $slug]);
         }
 
         $fields = FieldList::create(
-            TextField::create('Name', _t('OvisOrderForm.Name', 'Name')),
-            EmailField::create('Email', _t('OvisOrderForm.Email', 'Email')),
-            TextField::create('Phone', _t('OvisOrderForm.Phone', 'Phone')),
-            TextField::create('Address', _t('OvisOrderForm.Address', 'Address')),
-            TextField::create('PostalCode', _t('OvisOrderForm.PostalCode', 'Postal code')),
-            TextField::create('Locality', _t('OvisOrderForm.Locality', 'Locality')),
-            TextareaField::create('Question', _t('OvisOrderForm.Question', 'Additional questions')),
+            TextField::create('Name', _t(__CLASS__ . '.Name', 'Name')),
+            EmailField::create('Email', _t(__CLASS__ . '.Email', 'Email')),
+            TextField::create('Phone', _t(__CLASS__ . '.Phone', 'Phone')),
+            TextField::create('Address', _t(__CLASS__ . '.Address', 'Address')),
+            TextField::create('PostalCode', _t(__CLASS__ . '.PostalCode', 'Postal code')),
+            TextField::create('Locality', _t(__CLASS__ . '.Locality', 'Locality')),
+            TextareaField::create('Question', _t(__CLASS__ . '.Question', 'Additional questions')),
             HiddenField::create('PresentationID', 'PresentationID', $presentation->ID)
         );
 
@@ -79,6 +89,7 @@ class Presentation_Controller extends Page_Controller
      *
      * @param $data
      * @param Form $form
+     * @throws Exception
      */
     public function Order($data, Form $form)
     {
@@ -89,12 +100,12 @@ class Presentation_Controller extends Page_Controller
             $order->write();
             $order->createEmail()->send();
             $form->sessionMessage(
-                _t('OvisOrderForm.Success', 'Thank you for your order'),
+                _t(__CLASS__ . '.Success', 'Thank you for your order'),
                 'good'
             );
         } catch (Exception $e) {
             $form->sessionMessage(
-                _t('OvisOrderForm.Error', 'Something when wrong while placing your order, please contact the store'),
+                _t(__CLASS__ . '.Error', 'Something when wrong while placing your order, please contact the store'),
                 'bad'
             );
         }

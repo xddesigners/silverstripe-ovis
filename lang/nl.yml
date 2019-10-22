@@ -1,5 +1,5 @@
 nl:
-  OvisPage:
+  XD\Ovis\Models\OvisPage:
     Filter_Title: 'Trefword'
     Filter_Brand: 'Merk'
     Filter_AllBrands: 'Alle merken'
@@ -14,7 +14,7 @@ nl:
     Sort: 'Sorteren'
     Search: 'Zoeken'
     Reset: 'Reset filters'
-  OvisOrderForm:
+  XD\Ovis\Control\Presentation:
     Name: 'Naam'
     Email: 'E-mail'
     Phone: 'Telefoon'
