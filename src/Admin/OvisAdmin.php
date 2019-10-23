@@ -28,5 +28,5 @@ class OvisAdmin extends ModelAdmin
 
     private static $menu_title = 'OVIS';
 
-    private static $menu_icon = 'xddesigners/silverstripe-ovis:images/ovis.png';
+    private static $menu_icon = 'xddesigners/silverstripe-ovis:images/ovis.svg';
 }
