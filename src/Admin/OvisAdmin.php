@@ -3,6 +3,8 @@
 namespace XD\Ovis\Admin;
 
 use SilverStripe\Admin\ModelAdmin;
+use XD\Ovis\Models\Order;
+use XD\Ovis\Models\Presentation;
 
 /**
  * Class OvisAdmin
@@ -18,13 +20,13 @@ use SilverStripe\Admin\ModelAdmin;
 class OvisAdmin extends ModelAdmin
 {
     private static $managed_models = [
-        'XD\Ovis\Models\Order',
-        'XD\Ovis\Models\Presentation'
+        Order::class,
+        Presentation::class
     ];
 
     private static $url_segment = 'ovis';
 
     private static $menu_title = 'OVIS';
 
-    private static $menu_icon = '/ovis/images/ovis.png';
+    private static $menu_icon = 'xddesigners/silverstripe-ovis:images/ovis.png';
 }

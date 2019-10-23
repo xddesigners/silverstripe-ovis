@@ -227,8 +227,12 @@ class Presentation extends DataObject
     private static $summary_fields = [
         'CMSThumbnail' => 'Thumbnail',
         'Title',
-        'PriceNice' => 'Price',
+        'Price.Nice' => 'Price',
         'Sold.Nice' => 'Sold'
+    ];
+
+    private static $casting = [
+        'Price' => 'Currency'
     ];
 
     private static $indexes = [
@@ -239,6 +243,10 @@ class Presentation extends DataObject
     private static $has_many = [
         'Media' => PresentationMedia::class,
         'Accessories' => PresentationAccessory::class // todo can this be a many_many join .. ?
+    ];
+
+    private static $owns = [
+        'Media'
     ];
 
     private static $many_many = [

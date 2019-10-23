@@ -96,7 +96,7 @@ class Order extends DataObject
 
         return Email::create($from, $to, $this->getTitle())
             ->setReplyTo($this->Email)
-            ->setTemplate('XD\Ovis\Email\OrderEmail')
-            ->populateTemplate($this);
+            ->setHTMLTemplate('XD\Ovis\Email\OrderEmail')
+            ->setData($this);
     }
 }

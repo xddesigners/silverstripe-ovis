@@ -45,7 +45,7 @@ class Import extends BuildTask
      * Define the data mapping for the importable object
      * @var array
      */
-    private static $data_mapping = array(
+    private static $data_mapping = [
         'id' => 'OvisID',
         'created' => 'OvisCreated',
         'updated' => 'OvisUpdated',
@@ -55,20 +55,26 @@ class Import extends BuildTask
         'realm' => 'Realm',
         'locale' => 'Locale',
         'status' => 'Status',
-        'mediainfo' => array(
-            '360' => array(
+        'mediainfo' => [
+            '360' => [
                 'url' => 'Media360Link'
-            ),
+            ],
             'pdf' => 'MediaPDFLink',
             '3D' => 'Media3DLink',
             'taGGleVideo' => 'MediaVideoLink'
-        ),
-        'banners' => array(
-            'aveko' => 'BannerAvekoLink',
-            'kampeerkrediet' => 'BannerKampeerkredietLink',
-            'finanplaza' => 'BannerFinanplazaLink'
-        ),
-        'specifications' => array(
+        ],
+        'banners' => [
+            'aveko' => [
+                'url' => 'BannerAvekoLink'
+            ],
+            'kampeerkrediet' => [
+                'url' => 'BannerKampeerkredietLink'
+            ],
+            'finanplaza' => [
+                'url' => 'BannerFinanplazaLink'
+            ]
+        ],
+        'specifications' => [
             'category' => 'Category',
             'brand' => 'Brand',
             'model' => 'Model',
@@ -90,22 +96,22 @@ class Import extends BuildTask
             'rental' => 'Rental',
             'exRental' => 'ExRental',
             'export' => 'Export',
-            'dates' => array(
+            'dates' => [
                 'constructionYear' => 'ConstructionYear',
                 'constructionMonth' => 'ConstructionMonth',
                 'modelYear' => 'ModelYear',
                 'dateArrival' => 'DateArrival',
                 'datePart1a' => 'DatePart1a',
                 'datePurchased' => 'DatePurchased'
-            ),
-            'mediator' => array(
+            ],
+            'mediator' => [
                 'enabled' => 'MediatorEnabled',
                 'name' => 'MediatorName',
                 'phoneNumber' => 'MediatorPhoneNumber',
                 'email' => 'MediatorEmail',
                 'description' => 'MediatorDescription'
-            ),
-            'weightsMeasures' => array(
+            ],
+            'weightsMeasures' => [
                 'lengthConstruction' => 'LengthConstruction',
                 'lengthTotal' => 'LengthTotal',
                 'width' => 'Width',
@@ -115,13 +121,13 @@ class Import extends BuildTask
                 'weightOperational' => 'WeightOperational',
                 'weightMaximum' => 'WeightMaximum',
                 'capacity' => 'Capacity'
-            ),
-            'beds' => array(
+            ],
+            'beds' => [
                 'numberOfBeds' => 'NumberOfBeds',
                 'numberOfSleepingPlaces' => 'NumberOfSleepingPlaces',
                 'bedrooms' => 'Bedrooms',
-            ),
-            'warranty' => array(
+            ],
+            'warranty' => [
                 'bovag' => 'Bovag',
                 'bovagEndDate' => 'BovagEndDate',
                 'bovagMonths' => 'BovagMonths',
@@ -136,8 +142,8 @@ class Import extends BuildTask
                 'miscMonths' => 'MiscMonths',
                 'miscMileage' => 'MiscMileage',
                 'miscDescription' => 'MiscDescription'
-            ),
-            'prices' => array(
+            ],
+            'prices' => [
                 'price' => 'Price',
                 'retail' => 'PriceRetail',
                 'display' => 'PriceDisplay',
@@ -150,8 +156,8 @@ class Import extends BuildTask
                 'valuation' => 'PriceValuation',
                 'sold' => 'PriceSold',
                 'vat' => 'VAT',
-            ),
-            'pricesRental' => array(
+            ],
+            'pricesRental' => [
                 'price3Hours' => 'RentalPrice3Hours',
                 'priceDayPart' => 'RentalPriceDayPart',
                 'priceDay' => 'RentalPriceDay',
@@ -160,9 +166,9 @@ class Import extends BuildTask
                 'priceMonth' => 'RentalPriceMonth',
                 'deposit' => 'RentalDeposit',
                 'noclaim' => 'RentalNoClaim'
-            )
-        )
-    );
+            ]
+        ]
+    ];
 
     private $oldManifest = [];
     private $newManifest = [];
@@ -236,9 +242,15 @@ class Import extends BuildTask
 
             // Import the images
             if (($images = $presentation->mediainfo->images) && is_array($images)) {
+                $importedImages = [];
                 foreach ($images as $image) {
-                    self::importMedia($image, $importObj);
+                    $media = self::importMedia($image, $importObj);
+                    $importedImages[] = $media->Name;
                 }
+
+                // Check if there is old media to delete
+                $toDeleteMedia = $importObj->Media()->exclude(['Name' => $importedImages]);
+                $toDeleteMedia->removeAll();
             }
 
             // Beds
@@ -290,12 +302,10 @@ class Import extends BuildTask
                 self::loop_map($to, $object, $data->{$from});
             } elseif ($value = $data->{$from}) {
                 if (is_object($value)) {
-                    echo "<pre>";
-                    print_r($value);
-                    echo "</pre>";
-                    exit();
+                    self::log("Unconfigured value {$from}", self::ERROR);;
+                } else {
+                    $object->{$to} = $value;
                 }
-                $object->{$to} = $value;
             }
         }
     }
@@ -303,59 +313,62 @@ class Import extends BuildTask
     /**
      * Import and attach media files
      *
-     * @param PresentationMediaImage $image
+     * @param $image
      * @param Presentation $presentation
+     * @return PresentationMedia
      */
-    private static function importMedia($image, &$presentation)
+    private static function importMedia($image, Presentation $presentation)
     {
         $url = $image->traditional->original->clean->url;
-        $urlInfo = parse_url($url);
-        $urlPath = $urlInfo['path'];
-        // Fix: Remove rubbish that OVIS added (/large/normalfitcanvas/blank) after the .jpg filename.
-        $exploded = array_filter(explode('/', $urlPath));
-        $fileName = array_shift($exploded);
+        $url = str_replace('/large/normalfitcanvas/blank/', '', $url);
+        $sourcePath = pathinfo($url);
+        $fileName = explode('?', $sourcePath['basename'])[0];
         $folder = Folder::find_or_make("/ovismedia/{$presentation->ID}");
-        $path = $folder->getFullPath() . $fileName;
-        $relativePath = $folder->getRelativePath() . $fileName;
-
-        if (!file_exists($path)) {
-            try {
-                $response = Ovis::mediaClient()->request('GET', $url, [
-                    'sink' => $path
-                ]);
-
-                if ($response->getStatusCode() == 404) {
-                    unlink($path);
-                    self::log("File {$url} was not found", self::ERROR);
-                } else {
-                    self::log("Downloaded media {$url}", self::SUCCESS);
-                }
-            } catch (GuzzleException $e) {
-                self::log($e->getMessage(), self::ERROR);
-            }
-        }
-
+        
         /** @var PresentationMedia $media */
         if (!$media = $presentation->Media()->find('Name', $fileName)) {
             $media = PresentationMedia::create();
-            $media->setFilename($relativePath);
-            $media->setParentID($folder->ID);
+
+            try {
+                $media->downloadImageTo($url, $fileName, $folder);
+                $media->generateThumbnails();
+            } catch (GuzzleException $e) {
+                self::log("[PresentationMedia][Download] {$e->getMessage()}", self::ERROR);
+            } catch (Exception $e) {
+                self::log("[PresentationMedia][Download] {$e->getMessage()}", self::ERROR);
+            }
+
             $media->Title = $presentation->getTitle();
             $media->Default = $image->default;
             $media->Sort = $image->order;
-            $presentation->Media()->add($media);
-            self::log("[PresentationMedia][Created] {$media->getTitle()}", self::SUCCESS);
+
+            try {
+                $media->write();
+                $presentation->Media()->add($media);
+                self::log("[PresentationMedia][Created] {$media->getTitle()}", self::SUCCESS);
+            } catch (Exception $e) {
+                self::log($e->getMessage(), self::ERROR);
+            }
         } else {
             $media->Title = $presentation->getTitle();
             $media->Default = $image->default;
             $media->Sort = $image->order;
-            try {
-                $media->write();
-                self::log("[PresentationMedia][Updated] {$media->getTitle()}", self::SUCCESS);
-            } catch (Exception $e) {
-                self::log($e->getMessage(), self::ERROR);
+
+            if ($media->isChanged()) {
+                try {
+                    $media->write();
+                    self::log("[PresentationMedia][Updated] {$media->getTitle()}", self::SUCCESS);
+                } catch (Exception $e) {
+                    self::log($e->getMessage(), self::ERROR);
+                }
             }
         }
+
+        if (!$media->isPublished()) {
+            $media->publishSingle();
+        }
+
+        return $media;
     }
 
     /**
