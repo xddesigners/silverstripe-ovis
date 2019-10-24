@@ -4,6 +4,7 @@ namespace XD\Ovis\Models;
 
 use Page;
 use SilverStripe\Forms\DropdownField;
+use XD\Ovis\Control\OvisPageController;
 use XD\Ovis\Models\Presentation;
 
 
@@ -14,6 +15,8 @@ use XD\Ovis\Models\Presentation;
 class OvisPage extends Page
 {
     private static $table_name = 'Ovis_OvisPage';
+
+    private static $controller_name = OvisPageController::class;
 
     private static $db = array(
         'Category' => 'Varchar'

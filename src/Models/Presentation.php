@@ -12,6 +12,7 @@ use SilverStripe\ORM\HasManyList;
 use SilverStripe\ORM\ManyManyList;
 use SilverStripe\View\SSViewer;
 use SilverStripe\View\Parsers\URLSegmentFilter;
+use XD\Ovis\Control\OvisPageController;
 
 /**
  * Class Presentation
@@ -278,7 +279,11 @@ class Presentation extends DataObject
 
     public function Link()
     {
-        return "ovis/presentation/{$this->Slug}";
+        if ($ovisPage = DataObject::get_one(OvisPage::class)) {
+            return $ovisPage->Link("presentation/{$this->Slug}");
+        }
+
+        return null;
     }
 
     public function AbsoluteLink()

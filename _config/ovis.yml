@@ -1,11 +1,6 @@
 ---
 Name: ovis
 ---
-SilverStripe\Control\Director:
-  rules:
-    ovis//$Action/$ID: XD\Ovis\Control\PresentationController
-    Presentation_Controller//$Action: XD\Ovis\Control\PresentationController
-
 #XD\Ovis\Ovis:
 #  api_key:
 #  search:
