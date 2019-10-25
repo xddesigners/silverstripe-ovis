@@ -2,6 +2,7 @@
 
 namespace XD\Ovis\Models;
 
+use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\ORM\ValidationException;
@@ -232,6 +233,13 @@ class Presentation extends DataObject
         'Sold.Nice' => 'Sold'
     ];
 
+    private static $searchable_fields = [
+        'Title',
+        'Price',
+        'Brand',
+        'Model'
+    ];
+
     private static $casting = [
         'Price' => 'Currency'
     ];
@@ -279,7 +287,7 @@ class Presentation extends DataObject
 
     public function Link()
     {
-        if ($ovisPage = DataObject::get_one(OvisPage::class)) {
+        if ($ovisPage = $this->getParent()) {
             return $ovisPage->Link("presentation/{$this->Slug}");
         }
 
@@ -387,9 +395,9 @@ class Presentation extends DataObject
      */
     public function getParent()
     {
-        if ($page = DataObject::get_one('OvisPage', ['Category' => $this->Category])) {
+        if ($page = DataObject::get_one(OvisPage::class, ['Category' => $this->Category])) {
             return $page;
-        } elseif ($page = DataObject::get_one('OvisPage')) {
+        } elseif ($page = DataObject::get_one(OvisPage::class)) {
             return $page;
         }
 
@@ -402,15 +410,12 @@ class Presentation extends DataObject
      *
      * @return DBHTMLText
      */
-    public function getBreadCrumbs()
+    public function getBreadCrumbItems()
     {
         $parent = $this->getParent();
         $pages = $parent->getBreadcrumbItems(20, false, false);
         $pages->add($this);
-        $template = new SSViewer('BreadcrumbsTemplate');
-        return $template->process($parent->customise(new ArrayData(array(
-            'Pages' => $pages
-        ))));
+        return $pages;
     }
 
     /**

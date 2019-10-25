@@ -184,7 +184,7 @@ class Import extends BuildTask
         // Check what presentations to delete
         $toDeleteItems = array_diff($this->oldManifest, $this->newManifest);
         foreach ($toDeleteItems as $id => $ovisId) {
-            DataObject::delete_by_id('XD\Ovis\Models\Presentation', $id);
+            DataObject::delete_by_id(Presentation::class, $id);
             self::log("[DELETED] presentation $id", self::NOTICE);
         }
         

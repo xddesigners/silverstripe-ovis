@@ -14,6 +14,8 @@ use XD\Ovis\Models\Presentation;
  */
 class OvisPage extends Page
 {
+    const ALL_CATEGORIES = 'All';
+
     private static $table_name = 'Ovis_OvisPage';
 
     private static $controller_name = OvisPageController::class;
@@ -23,7 +25,7 @@ class OvisPage extends Page
     );
 
     private static $defaults = array(
-        'Category' => 'All'
+        'Category' => self::ALL_CATEGORIES
     );
 
     /**
@@ -56,7 +58,7 @@ class OvisPage extends Page
         $fields = parent::getCMSFields();
         $categories = Presentation::get()->column('Category');
         $categories = array_map('ucwords', array_combine($categories, $categories));
-        $categories['All'] = 'All';
+        $categories[self::ALL_CATEGORIES] = _t(__CLASS__ . '.All', 'All');
         $fields->addFieldsToTab('Root.Main', [
             DropdownField::create('Category', 'Category', $categories)
         ], 'Content');

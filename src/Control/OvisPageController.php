@@ -171,7 +171,9 @@ class OvisPageController extends PageController
         if (count(explode(' ', $sort)) === 2) {
             $sort = explode(' ', $sort);
             // FIX
-            $fields = DataObject::database_fields('XD\Ovis\Models\Presentation');
+            $fields = Presentation::config()->get('db');
+            //$fields = DataObject::database_fields('XD\Ovis\Models\Presentation');
+
             $sortingColumnExists = array_key_exists($sort[0], $fields);
             $sortingOptionAvailable = array_key_exists($sort[1], array_flip(array('ASC', 'DESC')));
 
