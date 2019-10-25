@@ -83,7 +83,7 @@ class OvisPageController extends PageController
         $fields->add($sort);
 
         $actions = FieldList::create(
-            FormAction::create('search')->setTitle(_t('OvisPage.Search', 'Search')),
+            FormAction::create('searchovis')->setTitle(_t('OvisPage.Search', 'Search')),
             FormAction::create('reset')->setTitle(_t('OvisPage.Reset', 'Reset filters'))
         );
 
@@ -97,7 +97,7 @@ class OvisPageController extends PageController
      * @param $data
      * @param Form $form
      */
-    public function search($data, Form $form)
+    public function searchovis($data, Form $form)
     {
         unset($data['url']);
         unset($data['SecurityID']);
