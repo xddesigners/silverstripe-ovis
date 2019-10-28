@@ -36,7 +36,7 @@ class PresentationAccessory extends DataObject
     ];
 
     private static $many_many = [
-        'Sub' => 'XD\Ovis\Models\PresentationAccessorySub'
+        'Sub' => PresentationAccessorySub::class
     ];
 
     private static $summary_fields = [

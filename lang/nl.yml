@@ -14,7 +14,7 @@ nl:
     Sort: 'Sorteren'
     Search: 'Zoeken'
     Reset: 'Reset filters'
-  XD\Ovis\Control\Presentation:
+  XD\Ovis\Control\OvisPageController:
     Name: 'Naam'
     Email: 'E-mail'
     Phone: 'Telefoon'
@@ -22,3 +22,4 @@ nl:
     PostalCode: 'Postcode'
     Locality: 'Plaats'
     Question: 'Uw vraag'
+    Order: 'Offerte aanvragen'

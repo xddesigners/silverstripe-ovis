@@ -7,7 +7,7 @@ namespace XD\Ovis\Schemas;
  * @author Bram de Leeuw
  *
  * @property string category
- * @property int description
+ * @property string description
  * @property PresentationSpecificationsAccessorySub[] sub
  */
 interface PresentationSpecificationsAccessory

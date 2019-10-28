@@ -301,7 +301,7 @@ class OvisPageController extends PageController
         );
 
         $actions = FieldList::create(
-            FormAction::create('Order', _t('OvisOrderForm.Order', 'Order'))
+            FormAction::create('Order', _t(__CLASS__ . '.Order', 'Order'))
         );
 
         $required = new RequiredFields(array('Name', 'Email'));
