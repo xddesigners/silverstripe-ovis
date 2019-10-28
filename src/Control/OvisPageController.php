@@ -156,6 +156,7 @@ class OvisPageController extends PageController
             }
         }
 
+        $this->extend('updateFilters', $filters);
         $occasions = Presentation::get()->filter($filters)->sort($sort);
         $paginatedList = PaginatedList::create($occasions, $this->getRequest());
         return $paginatedList->setPageLength(12);
