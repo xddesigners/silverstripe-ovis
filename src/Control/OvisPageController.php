@@ -67,15 +67,15 @@ class OvisPageController extends PageController
                     $value = $value ? $value : array_search(current($values), $values);
                 }
 
-                $field = new DropdownField($filter, _t("OvisPage.Filter_$filter", $column), $values, $value);
+                $field = new DropdownField($filter, _t(__CLASS__ . ".Filter_$filter", $column), $values, $value);
             } else {
-                $field = new TextField($filter, _t("OvisPage.Filter_$filter", $column), $request->getVar($filter));
+                $field = new TextField($filter, _t(__CLASS__ . ".Filter_$filter", $column), $request->getVar($filter));
             }
 
             $this->extend('updateFilterField', $field);
             $fields->add($field);
-
         }
+
         $sortingOptions = OvisPage::config()->get('sorting_options');
 
         $currentSortingValue = $request->getVar('Sort') ? $request->getVar('Sort') : array_search(current($sortingOptions), $sortingOptions);

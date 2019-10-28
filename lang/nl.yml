@@ -1,5 +1,13 @@
 nl:
-  XD\Ovis\Models\OvisPage:
+  XD\Ovis\Control\OvisPageController:
+    Name: 'Naam'
+    Email: 'E-mail'
+    Phone: 'Telefoon'
+    Address: 'Adres'
+    PostalCode: 'Postcode'
+    Locality: 'Plaats'
+    Question: 'Uw vraag'
+    Order: 'Offerte aanvragen'
     Filter_Title: 'Trefword'
     Filter_Brand: 'Merk'
     Filter_AllBrands: 'Alle merken'
@@ -14,12 +22,3 @@ nl:
     Sort: 'Sorteren'
     Search: 'Zoeken'
     Reset: 'Reset filters'
-  XD\Ovis\Control\OvisPageController:
-    Name: 'Naam'
-    Email: 'E-mail'
-    Phone: 'Telefoon'
-    Address: 'Adres'
-    PostalCode: 'Postcode'
-    Locality: 'Plaats'
-    Question: 'Uw vraag'
-    Order: 'Offerte aanvragen'
