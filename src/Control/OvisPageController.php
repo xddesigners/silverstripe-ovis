@@ -52,7 +52,7 @@ class OvisPageController extends PageController
         $request = $this->getRequest();
         $fields = FieldList::create();
 
-        foreach (OvisPage::config()->get('filters') as $filter) {
+        foreach (array_unique(OvisPage::config()->get('filters')) as $filter) {
             $filterParts = explode('_', $filter);
             $column = $filterParts[0];
             $value = $request->getVar($filter);
@@ -137,7 +137,7 @@ class OvisPageController extends PageController
             ? array('Category' => $this->Category)
             : array();
 
-        foreach (OvisPage::config()->get('filters') as $filter) {
+        foreach (array_unique(OvisPage::config()->get('filters')) as $filter) {
             if ($value = $request->getVar($filter)) {
                 $filterParts = explode('_', $filter);
                 $column = $filterParts[0];
