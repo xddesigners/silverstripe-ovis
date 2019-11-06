@@ -4,6 +4,7 @@ namespace XD\Ovis\Tasks;
 
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataObject;
@@ -323,14 +324,14 @@ class Import extends BuildTask
         $url = str_replace('/large/normalfitcanvas/blank/', '', $url);
         $sourcePath = pathinfo($url);
         $fileName = explode('?', $sourcePath['basename'])[0];
-        $folder = Folder::find_or_make("/ovismedia/{$presentation->ID}");
-        
+        $slug = $presentation->Slug ?: $presentation->ID;
+        $folderPath = 'ovismedia/' . $slug;
+
         /** @var PresentationMedia $media */
         if (!$media = $presentation->Media()->find('Name', $fileName)) {
             $media = PresentationMedia::create();
-
             try {
-                $media->downloadImageTo($url, $fileName, $folder);
+                $media->downloadImageTo($url, $fileName, $folderPath);
                 $media->generateThumbnails();
             } catch (GuzzleException $e) {
                 self::log("[PresentationMedia][Download] {$e->getMessage()}", self::ERROR);

@@ -9,7 +9,10 @@ use SilverStripe\AssetAdmin\Controller\AssetAdmin;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
+use SilverStripe\Control\Controller;
+use SilverStripe\Control\Director;
 use SilverStripe\Security\Security;
+use SilverStripe\Versioned\Versioned;
 use XD\Ovis\Ovis;
 
 /**
@@ -61,15 +64,21 @@ class PresentationMedia extends Image
      * @throws Exception
      * @throws GuzzleException
      */
-    public function downloadImageTo($imageSource, $fileName, Folder $folder)
+    public function downloadImageTo($imageSource, $fileName, $folderPath)
     {
         $client = Ovis::mediaClient();
         $request = $client->request('GET', $imageSource);
         $stream = $request->getBody();
+        $folder = Folder::find_or_make($folderPath);
+        $streamTo = Controller::join_links([$folderPath, $fileName]);
+
         if ($stream->isReadable()) {
-            $this->setFromStream($stream->detach(), $fileName);
             $this->ParentID = $folder->ID;
             $this->OwnerID = ($user = Security::getCurrentUser()) ? $user->ID : 0;
+            $this->setFromStream($stream->detach(), $streamTo);
+            $this->write();
+            $this->generateThumbnails();
+            $this->publishSingle();
         } else {
             throw new Exception("Error while downloading file: $imageSource");
         }
@@ -89,12 +98,5 @@ class PresentationMedia extends Image
             UploadField::config()->uninherited('thumbnail_width'),
             UploadField::config()->uninherited('thumbnail_height')
         );
-    }
-
-    public function onBeforeDelete()
-    {
-        parent::onBeforeDelete();
-        $this->doArchive();
-        $this->deleteFile();
     }
 }
