@@ -352,6 +352,12 @@ class Presentation extends DataObject
         return null;
     }
 
+    public function getTitle(){
+        $title = parent::getTitle();
+        $this->extend('updateTitle',$title);
+        return $title;
+    }
+
     function getOGImage()
     {
         if ($image = $this->getDefaultImage()){
