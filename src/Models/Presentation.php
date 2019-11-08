@@ -438,4 +438,9 @@ class Presentation extends DataObject
             ->sort("RAND()")
             ->limit($limit);
     }
+
+    public function canView($member = null)
+    {
+        return true;
+    }
 }
