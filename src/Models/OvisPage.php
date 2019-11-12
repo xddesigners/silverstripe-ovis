@@ -46,7 +46,8 @@ class OvisPage extends Page
     );
 
     private static $sorting_options = array(
-        'Title DESC' => 'Alfabetisch',
+        'Title ASC' => 'Alfabetisch Oplopend',
+        'Title DESC' => 'Alfabetisch Aflopend',
         'Price ASC' => 'Prijs Oplopend',
         'Price DESC' => 'Prijs Aflopend',
         'ConstructionYear DESC' => 'Bouwjaar',
