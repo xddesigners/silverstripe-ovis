@@ -6,7 +6,7 @@ nl:
     Address: 'Adres'
     PostalCode: 'Postcode'
     Locality: 'Plaats'
-    Question: 'Uw vraag'
+    Question: 'Omschrijving'
     Order: 'Offerte aanvragen'
     TradeIn: 'Inruilvoorstel'
     Brand: 'Merk'
