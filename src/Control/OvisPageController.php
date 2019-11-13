@@ -14,6 +14,7 @@ use SilverStripe\Forms\TextareaField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\PaginatedList;
+use SilverStripe\View\Requirements;
 use XD\Ovis\Models\Order;
 use XD\Ovis\Models\OvisPage;
 use XD\Ovis\Models\Presentation;
@@ -328,9 +329,7 @@ class OvisPageController extends PageController
                 'Tires',
                 _t(__CLASS__ . '.Tires', 'Tires'),
                 Order::singleton()->getEnumValues('Tires')
-            )->addExtraClass('ovis-trade-field'),
-
-            // fotos (?)
+            )->addExtraClass('ovis-trade-field')
         );
 
         $actions = FieldList::create(
@@ -340,6 +339,25 @@ class OvisPageController extends PageController
         $required = new RequiredFields(array('Name', 'Email'));
         $form = Form::create($this, 'OrderForm', $fields, $actions, $required);
         $this->extend('updateOrderForm', $form);
+
+        Requirements::customScript(<<<JS
+          (function($) {
+            'use strict';
+            var select = $('select[name="TradeIn"]');
+            showFields({data: {select}});
+            select.on('change', {select}, showFields);
+            function showFields(event) {
+              var value = event.data.select.val();
+              if (value !== 'Not') {
+                $('.field.ovis-trade-field').show();
+              } else {
+                $('.field.ovis-trade-field').hide();
+              }
+            }
+          })(jQuery);
+JS
+        );
+
         return $form;
     }
 
