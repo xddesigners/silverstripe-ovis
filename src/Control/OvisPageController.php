@@ -372,7 +372,7 @@ JS
     {
         $order = Order::create();
         $form->saveInto($order);
-        $this->extend('onBeforeWriteOrder', $order);
+        $this->extend('onBeforePlaceOrder', $order, $data, $form);
 
         try {
             $order->write();
