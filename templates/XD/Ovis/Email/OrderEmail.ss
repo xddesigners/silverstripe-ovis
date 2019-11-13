@@ -11,23 +11,44 @@
         <dt><strong>Phone</strong></dt>
         <dd style="margin: 4px 0 14px 0">$Phone</dd>
     <% end_if %>
-    <% if $Address %>
-        <dt><strong>Address</strong></dt>
-        <dd style="margin: 4px 0 14px 0">$Address</dd>
-    <% end_if %>
-    <% if $PostalCode %>
-        <dt><strong>PostalCode</strong></dt>
-        <dd style="margin: 4px 0 14px 0">$PostalCode</dd>
-    <% end_if %>
-    <% if $Locality %>
-        <dt><strong>Locality</strong></dt>
-        <dd style="margin: 4px 0 14px 0">$Locality</dd>
-    <% end_if %>
     <% if $Presentation %>
         <dt><strong>About</strong></dt>
         <dd style="margin: 4px 0 14px 0">
             <a href="$Presentation.Link">$Presentation.Title ($Presentation.PriceNice)</a>
         </dd>
+    <% end_if %>
+
+    <% if $TradeIn %>
+        <dt><strong>TradeIn</strong></dt>
+        <dd style="margin: 4px 0 14px 0">$TradeIn</dd>
+    <% end_if %>
+    <% if $Brand %>
+        <dt><strong>Brand</strong></dt>
+        <dd style="margin: 4px 0 14px 0">$Brand</dd>
+    <% end_if %>
+    <% if $Model %>
+        <dt><strong>Model</strong></dt>
+        <dd style="margin: 4px 0 14px 0">$Model</dd>
+    <% end_if %>
+    <% if $ConstructionYear %>
+        <dt><strong>ConstructionYear</strong></dt>
+        <dd style="margin: 4px 0 14px 0">$ConstructionYear</dd>
+    <% end_if %>
+    <% if $Condition %>
+        <dt><strong>Condition</strong></dt>
+        <dd style="margin: 4px 0 14px 0">$Condition</dd>
+    <% end_if %>
+    <% if $Undamaged %>
+        <dt><strong>Undamaged</strong></dt>
+        <dd style="margin: 4px 0 14px 0">$Undamaged</dd>
+    <% end_if %>
+    <% if $Upholstery %>
+        <dt><strong>Upholstery</strong></dt>
+        <dd style="margin: 4px 0 14px 0">$Upholstery</dd>
+    <% end_if %>
+    <% if $Tires %>
+        <dt><strong>Tires</strong></dt>
+        <dd style="margin: 4px 0 14px 0">$Tires</dd>
     <% end_if %>
 </dl>
 

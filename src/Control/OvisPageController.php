@@ -294,11 +294,43 @@ class OvisPageController extends PageController
             TextField::create('Name', _t(__CLASS__ . '.Name', 'Name')),
             EmailField::create('Email', _t(__CLASS__ . '.Email', 'Email')),
             TextField::create('Phone', _t(__CLASS__ . '.Phone', 'Phone')),
-            TextField::create('Address', _t(__CLASS__ . '.Address', 'Address')),
-            TextField::create('PostalCode', _t(__CLASS__ . '.PostalCode', 'Postal code')),
-            TextField::create('Locality', _t(__CLASS__ . '.Locality', 'Locality')),
             TextareaField::create('Question', _t(__CLASS__ . '.Question', 'Additional questions')),
-            HiddenField::create('PresentationID', 'PresentationID', $presentation->ID)
+            HiddenField::create('PresentationID', 'PresentationID', $presentation->ID),
+
+            DropdownField::create(
+                'TradeIn',
+                _t(__CLASS__ . '.TradeIn', 'Trade in'),
+                Order::singleton()->getEnumValues('TradeIn')
+            ),
+            TextField::create('Brand', _t(__CLASS__ . '.Brand', 'Brand'))->addExtraClass('ovis-trade-field'),
+            TextField::create('Model', _t(__CLASS__ . '.Model', 'Model'))->addExtraClass('ovis-trade-field'),
+            DropdownField::create(
+                'ConstructionYear',
+                _t(__CLASS__ . '.ConstructionYear', 'Construction year'),
+                range(1969, date('Y'))
+            )->addExtraClass('ovis-trade-field'),
+            DropdownField::create(
+                'Condition',
+                _t(__CLASS__ . '.Condition', 'Condition'),
+                Order::singleton()->getEnumValues('Condition')
+            )->addExtraClass('ovis-trade-field'),
+            DropdownField::create(
+                'Undamaged',
+                _t(__CLASS__ . '.Undamaged', 'Undamaged'),
+                Order::singleton()->getEnumValues('Undamaged')
+            )->addExtraClass('ovis-trade-field'),
+            DropdownField::create(
+                'Upholstery',
+                _t(__CLASS__ . '.Upholstery', 'Upholstery'),
+                Order::singleton()->getEnumValues('Upholstery')
+            )->addExtraClass('ovis-trade-field'),
+            DropdownField::create(
+                'Tires',
+                _t(__CLASS__ . '.Tires', 'Tires'),
+                Order::singleton()->getEnumValues('Tires')
+            )->addExtraClass('ovis-trade-field'),
+
+            // fotos (?)
         );
 
         $actions = FieldList::create(

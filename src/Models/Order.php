@@ -14,10 +14,16 @@ use SilverStripe\Control\Email\Email;
  * @property string Name
  * @property string Email
  * @property string Phone
- * @property string Address
- * @property string PostalCode
- * @property string Locality
  * @property string Question
+ * @property string TradeIn
+ * @property string Brand
+ * @property string Model
+ * @property string ConstructionYear
+ * @property string Condition
+ * @property string Undamaged
+ * @property string Upholstery
+ * @property string Tires
+ *
  * @method Presentation Presentation()
  */
 class Order extends DataObject
@@ -48,10 +54,15 @@ class Order extends DataObject
         'Name' => 'Varchar',
         'Email' => 'Varchar',
         'Phone' => 'Varchar',
-        'Address' => 'Varchar',
-        'PostalCode' => 'Varchar',
-        'Locality' => 'Varchar',
         'Question' => 'Varchar',
+        'TradeIn' => 'Enum("Not,Caravan,Camper,Other", "Not")',
+        'Brand' => 'Varchar',
+        'Model' => 'Varchar',
+        'ConstructionYear' => 'Varchar(4)',
+        'Condition' => 'Enum("Mint,Good,Reasonable,Damaged", "Mint")',
+        'Undamaged' => 'Enum("Yes,No", "Yes")',
+        'Upholstery' => 'Enum("VeryGood,Good,Reasonable,Bad,VeryBad", "VeryGood")',
+        'Tires' => 'Enum("VeryGood,Good,Reasonable,Bad,VeryBad", "VeryGood")',
     ];
 
     private static $default_sort = 'Created DESC';
@@ -98,5 +109,16 @@ class Order extends DataObject
             ->setReplyTo($this->Email)
             ->setHTMLTemplate('XD\Ovis\Email\OrderEmail')
             ->setData($this);
+    }
+
+    public function getEnumValues($column)
+    {
+        if (($dbObject = $this->dbObject($column)) && $dbObject->hasMethod('enumValues')) {
+            return array_map(function ($option) use ($column) {
+                return _t(Order::class . ".{$column}_{$option}", $option);
+            }, $dbObject->enumValues());
+        }
+
+        return [];
     }
 }
