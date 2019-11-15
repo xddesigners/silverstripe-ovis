@@ -191,7 +191,7 @@ class OvisPageController extends PageController
      */
     public function getBrandValues()
     {
-        $brands = Presentation::get()->sort('Brand ASC')->column('Brand');
+        $brands = Presentation::get()->sort('Brand DESC')->column('Brand');
         $brands = array_map('ucfirst', array_combine($brands, $brands));
 
         $brands[] = _t('OvisPage.Filter_AllBrands', 'All brands');
