@@ -308,7 +308,7 @@ class OvisPageController extends PageController
             DropdownField::create(
                 'ConstructionYear',
                 _t(__CLASS__ . '.ConstructionYear', 'Construction year'),
-                range(1969, date('Y'))
+                array_combine($years = range(1969, date('Y')), $years)
             )->addExtraClass('ovis-trade-field'),
             DropdownField::create(
                 'Condition',
