@@ -46,12 +46,12 @@ class OvisPage extends Page
     );
 
     private static $sorting_options = array(
+        'OvisCreated DESC' => 'Laatst Ingevoerd',
         'Title ASC' => 'Alfabetisch Oplopend',
         'Title DESC' => 'Alfabetisch Aflopend',
         'Price ASC' => 'Prijs Oplopend',
         'Price DESC' => 'Prijs Aflopend',
-        'ConstructionYear DESC' => 'Bouwjaar',
-        'OvisCreated DESC' => 'Laatst Ingevoerd'
+        'ConstructionYear DESC' => 'Bouwjaar'
     );
 
     public function getCMSFields()
