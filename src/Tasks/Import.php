@@ -188,7 +188,7 @@ class Import extends BuildTask
             DataObject::delete_by_id(Presentation::class, $id);
             self::log("[DELETED] presentation $id", self::NOTICE);
         }
-        
+
         self::log('Finished: no pages left to query', self::SUCCESS);
         exit(self::SUCCESS);
     }
@@ -234,6 +234,7 @@ class Import extends BuildTask
      */
     public function importPresentation($presentation)
     {
+
         try {
             $importObj = Presentation::findOrMake($presentation->id);
             $dataMapping = self::config()->get('data_mapping');
@@ -321,8 +322,9 @@ class Import extends BuildTask
     private static function importMedia($image, Presentation $presentation)
     {
         $url = $image->traditional->original->clean->url;
-        $url = str_replace('/large/normalfitcanvas/blank/', '', $url);
-        $sourcePath = pathinfo($url);
+
+        $urlName = str_replace('/large/normalfitcanvas/blank/', '', $url);
+        $sourcePath = pathinfo($urlName);
         $fileName = explode('?', $sourcePath['basename'])[0];
         $slug = $presentation->Slug ?: $presentation->ID;
         $folderPath = 'ovismedia/' . $slug;
