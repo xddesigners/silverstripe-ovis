@@ -27,3 +27,6 @@ nl:
     Locality: 'Plaats'
     Question: 'Uw vraag'
     Order: 'Verzend aanvraag'
+    Success: 'Bedankt voor uw aanvraag'
+  OvisOrder:
+    Subject: 'Nieuwe aanvraag van {name} voor {presentation}'
