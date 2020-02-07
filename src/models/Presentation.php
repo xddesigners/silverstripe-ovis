@@ -267,7 +267,11 @@ class Presentation extends DataObject
 
     public function Link()
     {
-        return "ovis/presentation/{$this->Slug}";
+        if ($ovisPage = $this->getParent()) {
+            return $ovisPage->Link("presentation/{$this->Slug}");
+        }
+
+        return null;
     }
 
     public function AbsoluteLink()

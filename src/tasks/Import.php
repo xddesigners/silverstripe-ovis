@@ -177,7 +177,7 @@ class Import extends BuildTask
             DataObject::delete_by_id('XD\Ovis\Models\Presentation', $id);
             self::log("[DELETED] presentation $id", self::NOTICE);
         }
-        
+
         self::log('Finished: no pages left to query', self::SUCCESS);
         exit(self::SUCCESS);
     }
@@ -245,7 +245,7 @@ class Import extends BuildTask
             }
 
             // Lay-out divisions
-            if (
+            if ( isset($presentation->specifications->specsCaravan) &&
                 ($specs = $presentation->specifications->specsCaravan) &&
                 ($divisions = $specs->division) &&
                 is_array($divisions)
@@ -286,12 +286,10 @@ class Import extends BuildTask
                 self::loop_map($to, $object, $data->{$from});
             } elseif ($value = $data->{$from}) {
                 if (is_object($value)) {
-                    echo "<pre>";
-                    print_r($value);
-                    echo "</pre>";
-                    exit();
+                    self::log("Unconfigured value {$from}", self::ERROR);;
+                } else {
+                    $object->{$to} = $value;
                 }
-                $object->{$to} = $value;
             }
         }
     }

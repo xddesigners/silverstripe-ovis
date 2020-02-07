@@ -12,13 +12,24 @@ use XD\Ovis\Ovis;
 class OvisPage_controller extends page_controller
 {
     private static $allowed_actions = array(
-        'Filters'
+        'Filters','presentation','OrderForm'
     );
 
     public function init()
     {
         parent::init();
     }
+
+    public function presentation()
+    {
+        $slug = $this->getRequest()->param('ID');
+        if ($this->presentation = DataObject::get_one(Presentation::class, ['Slug' => $slug])) {
+            return $this->customise($this->presentation);
+        } else {
+            return $this->httpError(404, 'Not Found');
+        }
+    }
+
 
     /**
      * Create the filter interface
@@ -132,7 +143,7 @@ class OvisPage_controller extends page_controller
                 }
             }
         }
-
+        $this->extend('updateFilters', $filters);
         $occasions = Presentation::get()->filter($filters)->sort($sort);
         $paginatedList = PaginatedList::create($occasions, $this->getRequest());
         return $paginatedList->setPageLength(12);
@@ -165,10 +176,7 @@ class OvisPage_controller extends page_controller
     {
         $brands = Presentation::get()->sort('Brand ASC')->column('Brand');
         $brands = array_map('ucfirst', array_combine($brands, $brands));
-
-        $brands[] = _t('OvisPage.Filter_AllBrands', 'All brands');
-        $brands = array_reverse($brands, true);
-
+        array_unshift($brands, _t('OvisPage.Filter_AllBrands', 'All brands'));
         return $brands;
     }
 
@@ -208,7 +216,7 @@ class OvisPage_controller extends page_controller
             $values[$min] = $min;
             $min++;
         }
-        
+
         return $values;
     }
 
@@ -250,4 +258,67 @@ class OvisPage_controller extends page_controller
 
         return $values;
     }
+
+    /**
+     * Create a direct order form
+     *
+     * @return Form
+     */
+    public function OrderForm()
+    {
+        $slug = $this->getRequest()->param('ID');
+        if (!$presentation = $this->presentation) {
+            $presentation = DataObject::get_one('XD\Ovis\Models\Presentation', ['Slug' => $slug]);
+        }
+
+        $fields = FieldList::create(
+            TextField::create('Name', _t('OvisOrderForm.Name', 'Name')),
+            EmailField::create('Email', _t('OvisOrderForm.Email', 'Email')),
+            TextField::create('Phone', _t('OvisOrderForm.Phone', 'Phone')),
+            TextField::create('Address', _t('OvisOrderForm.Address', 'Address')),
+            TextField::create('PostalCode', _t('OvisOrderForm.PostalCode', 'Postal code')),
+            TextField::create('Locality', _t('OvisOrderForm.Locality', 'Locality')),
+            TextareaField::create('Question', _t('OvisOrderForm.Question', 'Additional questions')),
+            HiddenField::create('PresentationID', 'PresentationID', $presentation->ID)
+        );
+
+        $actions = FieldList::create(
+            FormAction::create('Order', _t('OvisOrderForm.Order', 'Order'))
+        );
+
+        $required = new RequiredFields(array('Name', 'Email'));
+        $form = Form::create($this, 'OrderForm', $fields, $actions, $required);
+        $this->extend('updateOrderForm', $form);
+        return $form;
+    }
+
+    /**
+     * Submit and save the order
+     *
+     * @param $data
+     * @param Form $form
+     */
+    public function Order($data, Form $form)
+    {
+        $order = Order::create();
+        $form->saveInto($order);
+
+        try {
+            $order->write();
+            $order->createEmail()->send();
+            $form->sessionMessage(
+                _t('OvisOrderForm.Success', 'Thank you for your order'),
+                'good'
+            );
+        } catch (Exception $e) {
+            $form->sessionMessage(
+                _t('OvisOrderForm.Error', 'Something when wrong while placing your order, please contact the store'),
+                'bad'
+            );
+        }
+
+        $this->redirectBack();
+    }
+
+
 }
