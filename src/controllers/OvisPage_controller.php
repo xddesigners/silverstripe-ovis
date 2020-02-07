@@ -1,5 +1,6 @@
 <?php
 
+use XD\Ovis\Models\Order;
 use XD\Ovis\Models\Presentation;
 use XD\Ovis\Ovis;
 
