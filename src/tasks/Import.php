@@ -37,6 +37,9 @@ class Import extends BuildTask
     protected $description = 'Import the OVIS data';
     protected $enabled = true;
 
+    private static $use_clean_images = false;
+
+
     /**
      * Define the data mapping for the importable object
      * @var array
@@ -302,7 +305,14 @@ class Import extends BuildTask
      */
     private static function importMedia($image, &$presentation)
     {
-        $url = $image->traditional->original->clean->url;
+        if( self::config()->get('use_clean_images') ) {
+            // clean images without labels
+            $url = $image->traditional->original->clean->url;
+        } else {
+            // default images with labels included
+            $url = $image->traditional->original->default->url;
+        }
+
         $urlInfo = parse_url($url);
         $urlPath = $urlInfo['path'];
         // Fix: Remove rubbish that OVIS added (/large/normalfitcanvas/blank) after the .jpg filename.
@@ -311,6 +321,12 @@ class Import extends BuildTask
         $folder = Folder::find_or_make("/ovismedia/{$presentation->ID}");
         $path = $folder->getFullPath() . $fileName;
         $relativePath = $folder->getRelativePath() . $fileName;
+
+
+        // detect labels
+        // https://images.ovis.nl/058d8cf733a361df7da2075cc248a291.jpg/large/normalfitcanvas/bovag{orientation:bottomright};label{orientation:topleft,color:FFFFFF,bgcolor:F8A133,text:NIEUW}/
+
+
 
         if (!file_exists($path)) {
             try {
