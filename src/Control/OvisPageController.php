@@ -345,11 +345,13 @@ class OvisPageController extends PageController
             function showFields() {
                 var tradeFields = document.querySelectorAll('.field.ovis-trade-field');
                 if (this.value && this.value !== 'Not') {
-                    for (let tradeField of tradeFields) {
+                    for (let i = 0; i < tradeFields.length; i++) {
+                        let tradeField = tradeFields[i];
                         tradeField.style.display = 'block';
                     }
                 } else {
-                    for (let tradeField of tradeFields) {
+                    for (let i = 0; i < tradeFields.length; i++) {
+                        let tradeField = tradeFields[i];
                         tradeField.style.display = 'none';
                     }
                 }
