@@ -341,20 +341,22 @@ class OvisPageController extends PageController
         $this->extend('updateOrderForm', $form);
 
         Requirements::customScript(<<<JS
-          (function($) {
-            'use strict';
-            var select = $('select[name="TradeIn"]');
-            showFields({data: {select: select}});
-            select.on('change', {select: select}, showFields);
-            function showFields(event) {
-              var value = event.data.select.val();
-              if (value !== 'Not') {
-                $('.field.ovis-trade-field').show();
-              } else {
-                $('.field.ovis-trade-field').hide();
-              }
+            var select = document.querySelector('select[name="TradeIn"]');
+            function showFields() {
+                var tradeFields = document.querySelectorAll('.field.ovis-trade-field');
+                if (this.value && this.value !== 'Not') {
+                    for (let tradeField of tradeFields) {
+                        tradeField.style.display = 'block';
+                    }
+                } else {
+                    for (let tradeField of tradeFields) {
+                        tradeField.style.display = 'none';
+                    }
+                }
             }
-          })(jQuery);
+            
+            select.addEventListener('change', showFields);
+            showFields();
 JS
         );
 
