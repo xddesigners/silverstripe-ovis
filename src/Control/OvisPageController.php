@@ -344,8 +344,8 @@ class OvisPageController extends PageController
           (function($) {
             'use strict';
             var select = $('select[name="TradeIn"]');
-            showFields({data: {select}});
-            select.on('change', {select}, showFields);
+            showFields({data: {select: select}});
+            select.on('change', {select: select}, showFields);
             function showFields(event) {
               var value = event.data.select.val();
               if (value !== 'Not') {
