@@ -245,9 +245,14 @@ class Import extends BuildTask
             // Import the images
             if (($images = $presentation->mediainfo->images) && is_array($images)) {
                 $importedImages = [];
+                $isFirst = true;
+                if( self::config()->get('use_clean_images') ) {
+                    $isFirst = false;
+                }
                 foreach ($images as $image) {
-                    $media = self::importMedia($image, $importObj);
+                    $media = self::importMedia($image, $importObj, $isFirst);
                     $importedImages[] = $media->Name;
+                    $isFirst = false;
                 }
 
                 // Check if there is old media to delete
@@ -319,15 +324,35 @@ class Import extends BuildTask
      * @param Presentation $presentation
      * @return PresentationMedia
      */
-    private static function importMedia($image, Presentation $presentation)
+    private static function importMedia($image, Presentation $presentation, $isFirst)
     {
-        $url = $image->traditional->original->clean->url;
+        if( self::config()->get('use_clean_images') ) {
+            // always import clean images without labels
+            $url = $image->traditional->original->clean->url;
+        } else {
+            if( $isFirst ) {
+                // first image imported with labels included
+                $url = $image->traditional->original->default->url;
+            } else {
+                // other images imported as clean image
+                $url = $image->traditional->original->clean->url;
+            }
+        }
+        self::log($url,self::NOTICE);
 
-        $urlName = str_replace('/large/normalfitcanvas/blank/', '', $url);
-        $sourcePath = pathinfo($urlName);
-        $fileName = explode('?', $sourcePath['basename'])[0];
+        $urlInfo = parse_url($url);
+        $urlPath = $urlInfo['path'];
+        $exploded = array_filter(explode('/', $urlPath));
+        $fileName = array_shift($exploded);
+        if($isFirst){
+            // add to name
+            $fileName = str_replace('.jpg','_label.jpg',$fileName);
+        }
         $slug = $presentation->Slug ?: $presentation->ID;
         $folderPath = 'ovismedia/' . $slug;
+
+        self::log($fileName,self::NOTICE);
+
 
         /** @var PresentationMedia $media */
         if (!$media = $presentation->Media()->find('Name', $fileName)) {
