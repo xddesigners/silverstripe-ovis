@@ -41,6 +41,8 @@ class Import extends BuildTask
     protected $description = 'Import the OVIS data';
 
     protected $enabled = true;
+    
+    private static $use_clean_images = false;
 
     /**
      * Define the data mapping for the importable object
