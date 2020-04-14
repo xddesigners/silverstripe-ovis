@@ -357,8 +357,12 @@ class Import extends BuildTask
 
 
         /** @var PresentationMedia $media */
-        if (!$media = $presentation->Media()->find('Name', $fileName)) {
-            $media = PresentationMedia::create();
+        $media = $presentation->Media()->find('Name', $fileName);
+        if ( !$media || $isFirst ) {
+            // always import again if first, because of label change
+            if( !$media ) {
+                $media = PresentationMedia::create();
+            }
             try {
                 $media->downloadImageTo($url, $fileName, $folderPath);
                 $media->generateThumbnails();
