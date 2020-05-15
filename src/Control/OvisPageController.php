@@ -362,7 +362,7 @@ class OvisPageController extends PageController
               showFields();              
             }
 JS
-        , "show-fields");
+        , 'ovis-show-fields');
 
         return $form;
     }
