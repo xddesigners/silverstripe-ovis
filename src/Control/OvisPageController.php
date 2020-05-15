@@ -342,7 +342,8 @@ class OvisPageController extends PageController
 
         Requirements::customScript(<<<JS
             var select = document.querySelector('select[name="TradeIn"]');
-            function showFields() {
+            if (select) {
+              function showFields() {
                 var tradeFields = document.querySelectorAll('.field.ovis-trade-field');
                 if (this.value && this.value !== 'Not') {
                     for (let i = 0; i < tradeFields.length; i++) {
@@ -355,12 +356,13 @@ class OvisPageController extends PageController
                         tradeField.style.display = 'none';
                     }
                 }
+              }
+              
+              select.addEventListener('change', showFields);
+              showFields();              
             }
-            
-            select.addEventListener('change', showFields);
-            showFields();
 JS
-        );
+        , "show-fields-{$this->ID}");
 
         return $form;
     }
