@@ -236,7 +236,7 @@ class OvisPageController extends PageController
             $values[$min] = $min;
             $min++;
         }
-        
+
         return $values;
     }
 
@@ -296,7 +296,7 @@ class OvisPageController extends PageController
             EmailField::create('Email', _t(__CLASS__ . '.Email', 'Email')),
             TextField::create('Phone', _t(__CLASS__ . '.Phone', 'Phone')),
             TextareaField::create('Question', _t(__CLASS__ . '.Question', 'Additional questions')),
-            HiddenField::create('PresentationID', 'PresentationID', $presentation->ID),
+            HiddenField::create('PresentationID', 'PresentationID', $presentation?$presentation->ID:0),
 
             DropdownField::create(
                 'TradeIn',
@@ -356,7 +356,7 @@ class OvisPageController extends PageController
                     }
                 }
             }
-            
+
             select.addEventListener('change', showFields);
             showFields();
 JS
