@@ -41,6 +41,7 @@ nl:
     Success: 'Bedankt voor uw aanvraag'
     Error: 'Er ging iets mis met het verwerken van de aanvraag, u kunt telefonisch contact opnemen met de winkel.'
   XD\Ovis\Models\Order:
+    Subject: 'Aanvraag caravan door {name} van {presentation}'
     TradeIn_Not: 'Geen'
     TradeIn_Caravan: 'Caravan'
     TradeIn_Camper: 'Kampeerauto'
