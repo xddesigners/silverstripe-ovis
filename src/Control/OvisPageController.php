@@ -18,7 +18,6 @@ use SilverStripe\View\Requirements;
 use XD\Ovis\Models\Order;
 use XD\Ovis\Models\OvisPage;
 use XD\Ovis\Models\Presentation;
-use XD\Ovis\Ovis;
 
 /**
  * Class OvisPageController
@@ -236,7 +235,7 @@ class OvisPageController extends PageController
             $values[$min] = $min;
             $min++;
         }
-        
+
         return $values;
     }
 
@@ -296,7 +295,7 @@ class OvisPageController extends PageController
             EmailField::create('Email', _t(__CLASS__ . '.Email', 'Email')),
             TextField::create('Phone', _t(__CLASS__ . '.Phone', 'Phone')),
             TextareaField::create('Question', _t(__CLASS__ . '.Question', 'Additional questions')),
-            HiddenField::create('PresentationID', 'PresentationID', $presentation->ID),
+            HiddenField::create('PresentationID', 'PresentationID', $presentation?$presentation->ID:0),
 
             DropdownField::create(
                 'TradeIn',
@@ -357,9 +356,9 @@ class OvisPageController extends PageController
                     }
                 }
               }
-              
+
               select.addEventListener('change', showFields);
-              showFields();              
+              showFields();
             }
 JS
         , 'ovis-show-fields');

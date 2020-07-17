@@ -105,10 +105,12 @@ class Order extends DataObject
             $to = Email::config()->get('admin_email');
         }
 
-        return Email::create($from, $to, $this->getTitle())
+        $email = Email::create($from, $to, $this->getTitle())
             ->setReplyTo($this->Email)
             ->setHTMLTemplate('XD\Ovis\Email\OrderEmail')
             ->setData($this);
+
+        return $email;
     }
 
     public function getEnumValues($column)
@@ -121,4 +123,26 @@ class Order extends DataObject
 
         return [];
     }
+
+
+    public function TradeInNice(){
+        return _t(__CLASS__.'TradeIn_'.$this->TradeIn,$this->TradeIn);
+    }
+
+    public function ConditionNice(){
+        return _t(__CLASS__.'.Condition_'.$this->Condition,$this->Condition);
+    }
+
+    public function UpholsteryNice(){
+        return _t(__CLASS__.'.Upholstery_'.$this->Upholstery,$this->Upholstery);
+    }
+
+    public function TiresNice(){
+        return _t(__CLASS__.'.Tires_'.$this->Tires,$this->Tires);
+    }
+
+    public function UndamagedNice(){
+        return _t(__CLASS__.'.Undamaged_'.$this->Undamaged,$this->Undamaged);
+    }
+
 }

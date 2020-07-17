@@ -16,6 +16,10 @@ nl:
     Undamaged: 'Schadevrij?'
     Upholstery: 'Staat bekleding'
     Tires: 'Staat banden'
+    Presentation: 'Presentatie'
+    CaravanModel: 'Caravanmodel'
+    Comments: 'Opmerkingen'
+    OrderPlaced: 'Offerte/inruilvoorstel verzonden op:'
     Filter_Title: 'Trefwoord'
     Filter_Brand: 'Merk'
     Filter_AllBrands: 'Alle merken'
@@ -37,6 +41,7 @@ nl:
     Success: 'Bedankt voor uw aanvraag'
     Error: 'Er ging iets mis met het verwerken van de aanvraag, u kunt telefonisch contact opnemen met de winkel.'
   XD\Ovis\Models\Order:
+    Subject: 'Aanvraag caravan door {name} van {presentation}'
     TradeIn_Not: 'Geen'
     TradeIn_Caravan: 'Caravan'
     TradeIn_Camper: 'Kampeerauto'
