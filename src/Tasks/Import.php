@@ -4,6 +4,7 @@ namespace XD\Ovis\Tasks;
 
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use SilverStripe\Assets\FileNameFilter;
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\Core\Convert;
@@ -324,45 +325,39 @@ class Import extends BuildTask
      *
      * @param $image
      * @param Presentation $presentation
+     * @param bool $getlabel
      * @return PresentationMedia
      */
-    private static function importMedia($image, Presentation $presentation, $isFirst)
+    private static function importMedia($image, Presentation $presentation, $getlabel = false)
     {
-        if( self::config()->get('use_clean_images') ) {
+        if ($getlabel && !self::config()->get('use_clean_images')) {
+            // first image imported with labels included
+            $url = $image->traditional->original->default->url;
+        } else {
             // always import clean images without labels
             $url = $image->traditional->original->clean->url;
-        } else {
-            if( $isFirst ) {
-                // first image imported with labels included
-                $url = $image->traditional->original->default->url;
-            } else {
-                // other images imported as clean image
-                $url = $image->traditional->original->clean->url;
-            }
         }
-        self::log($url,self::NOTICE);
 
+        self::log('Parse: ' . $url, self::NOTICE);
         $urlInfo = parse_url($url);
         $urlPath = $urlInfo['path'];
         $exploded = array_filter(explode('/', $urlPath));
         $fileName = array_shift($exploded);
-        if($isFirst){
-            // add to name
-            $fileName = str_replace('.jpg','_label.jpg',$fileName);
-        }
+        $fileParts = explode('.', $fileName);
+        $fileId = $fileParts[0];
+        $fileExt = $fileParts[1];
+        // Include the unique label parts in the url, so we can bust image caches
+        $fileName = FileNameFilter::create()->filter(implode('-', array_merge([$fileId], $exploded)) . ".$fileExt");
+
+        self::log('Store: ' . $fileName, self::NOTICE);
         $slug = $presentation->Slug ?: $presentation->ID;
         $folderPath = 'ovismedia/' . $slug;
 
-        self::log($fileName,self::NOTICE);
-
-
         /** @var PresentationMedia $media */
         $media = $presentation->Media()->find('Name', $fileName);
-        if ( !$media || $isFirst ) {
-            // always import again if first, because of label change
-            if( !$media ) {
-                $media = PresentationMedia::create();
-            }
+        if (!$media) {
+            $media = PresentationMedia::create();
+
             try {
                 $media->downloadImageTo($url, $fileName, $folderPath);
                 $media->generateThumbnails();
