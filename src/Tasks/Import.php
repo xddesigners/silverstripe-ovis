@@ -42,7 +42,7 @@ class Import extends BuildTask
     protected $description = 'Import the OVIS data';
 
     protected $enabled = true;
-    
+
     private static $use_clean_images = false;
 
     /**
@@ -308,13 +308,15 @@ class Import extends BuildTask
     private static function loop_map($map, &$object, $data)
     {
         foreach ($map as $from => $to) {
-            if (is_array($to) && is_object($data->{$from})) {
+            if (is_array($to) /* && is_object($data->{$from}) */ ) {
                 self::loop_map($to, $object, $data->{$from});
-            } elseif ($value = $data->{$from}) {
+            } elseif (isset($data->{$from})) {
+                $value = $data->{$from};
                 if (is_object($value)) {
-                    self::log("Unconfigured value {$from}", self::ERROR);;
-                } else {
-                    $object->{$to} = $value;
+                    self::log("Unconfigured value {$from}", self::ERROR);
+                }
+                if(is_string($value) || is_int($value) || is_bool($value) ){
+                    $object->{$to} = (string) $value;
                 }
             }
         }

@@ -273,11 +273,7 @@ class Presentation extends DataObject
         ])));
 
         $segmentFilter = URLSegmentFilter::create();
-        if (($slug = $segmentFilter->filter($this->Title)) && !self::get()->find('Slug', $slug)) {
-            $this->Slug = $slug;
-        } else {
-            $this->Slug = $slug = $segmentFilter->filter("$this->ID $this->Title");;
-        }
+        $this->Slug = $segmentFilter->filter("$this->ID $this->Title");
     }
 
     public function getMenuTitle()
