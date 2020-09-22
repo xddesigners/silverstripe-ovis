@@ -235,9 +235,20 @@ class Import extends BuildTask
 
             // Import the images
             if (($images = $presentation->mediainfo->images) && is_array($images)) {
-                foreach ($images as $image) {
-                    self::importMedia($image, $importObj);
+                $importedImages = [];
+                $isFirst = true;
+                if( self::config()->get('use_clean_images') ) {
+                    $isFirst = false;
                 }
+                foreach ($images as $image) {
+                    $media = self::importMedia($image, $importObj, $isFirst);
+                    $importedImages[] = $media->Name;
+                    $isFirst = false;
+                }
+
+                // Check if there is old media to delete
+                $toDeleteMedia = $importObj->Media()->exclude(['Name' => $importedImages]);
+                $toDeleteMedia->removeAll();
             }
 
             // Beds
@@ -319,14 +330,16 @@ class Import extends BuildTask
         $exploded = array_filter(explode('/', $urlPath));
         $fileName = array_shift($exploded);
         $folder = Folder::find_or_make("/ovismedia/{$presentation->ID}");
-        $path = $folder->getFullPath() . $fileName;
-        $relativePath = $folder->getRelativePath() . $fileName;
 
         $fileParts = explode('.', $fileName);
         $fileId = $fileParts[0];
         $fileExt = $fileParts[1];
         // Include the unique label parts in the url, so we can bust image caches
         $fileName = \URLSegmentFilter::create()->filter(implode('-', array_merge([$fileId], $exploded)) ). ".$fileExt";
+
+        $path = $folder->getFullPath() . $fileName;
+        $relativePath = $folder->getRelativePath() . $fileName;
+
 
         if (!file_exists($path)) {
             try {
@@ -366,6 +379,8 @@ class Import extends BuildTask
                 self::log($e->getMessage(), self::ERROR);
             }
         }
+
+        return $media;
     }
 
     /**
