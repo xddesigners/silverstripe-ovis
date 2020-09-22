@@ -322,11 +322,11 @@ class Import extends BuildTask
         $path = $folder->getFullPath() . $fileName;
         $relativePath = $folder->getRelativePath() . $fileName;
 
-
-        // detect labels
-        // https://images.ovis.nl/058d8cf733a361df7da2075cc248a291.jpg/large/normalfitcanvas/bovag{orientation:bottomright};label{orientation:topleft,color:FFFFFF,bgcolor:F8A133,text:NIEUW}/
-
-
+        $fileParts = explode('.', $fileName);
+        $fileId = $fileParts[0];
+        $fileExt = $fileParts[1];
+        // Include the unique label parts in the url, so we can bust image caches
+        $fileName = \URLSegmentFilter::create()->filter(implode('-', array_merge([$fileId], $exploded)) ). ".$fileExt";
 
         if (!file_exists($path)) {
             try {
