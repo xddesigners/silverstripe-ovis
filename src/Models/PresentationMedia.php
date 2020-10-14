@@ -36,7 +36,6 @@ class PresentationMedia extends Image
     private static $plural_name = 'Media';
 
     private static $db = [
-        'OriginalURL' => 'Varchar',
         'Default' => 'Boolean',
         'Sort' => 'Int'
     ];

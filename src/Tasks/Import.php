@@ -5,6 +5,7 @@ namespace XD\Ovis\Tasks;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use SilverStripe\Assets\FileNameFilter;
+use SilverStripe\Assets\FilenameParsing\HashFileIDHelper;
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\Core\Convert;
@@ -349,11 +350,15 @@ class Import extends BuildTask
         $fileId = $fileParts[0];
         $fileExt = $fileParts[1];
         // Include the unique label parts in the url, so we can bust image caches
-        $fileName = FileNameFilter::create()->filter(implode('-', array_merge([$fileId], $exploded)) . ".$fileExt");
+        $fileName = FileNameFilter::create()->filter(implode('-', array_merge([$fileId], $exploded)));
 
-        self::log('Store: ' . $fileName, self::NOTICE);
         $slug = $presentation->Slug ?: $presentation->ID;
         $folderPath = 'ovismedia/' . $slug;
+
+        $hash = sha1($fileName);
+        $fileName = "$hash.$fileExt";
+
+        self::log('Store: ' . $fileName, self::NOTICE);
 
         /** @var PresentationMedia $media */
         $media = $presentation->Media()->find('Name', $fileName);
