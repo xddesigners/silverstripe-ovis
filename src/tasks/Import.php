@@ -160,7 +160,7 @@ class Import extends BuildTask
                 'deposit' => 'RentalDeposit',
                 'noclaim' => 'RentalNoClaim'
             ),
-            'specscamper' => array(
+            'specsCamper' => array(
                 'category' => 'CamperCategory',
                 'carBrand' => 'CamperCarBrand',
                 'mileage' => 'CamperMileage',
