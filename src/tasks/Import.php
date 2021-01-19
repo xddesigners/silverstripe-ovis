@@ -305,9 +305,9 @@ class Import extends BuildTask
     private static function loop_map($map, &$object, $data)
     {
         foreach ($map as $from => $to) {
-            if (is_array($to) && is_object($data->{$from})) {
+            if (isset($data->{$from}) && is_array($to) && is_object($data->{$from})) {
                 self::loop_map($to, $object, $data->{$from});
-            } elseif ($value = $data->{$from}) {
+            } elseif ( isset($data->{$from}) && $value = $data->{$from}) {
                 if (is_object($value)) {
                     self::log("Unconfigured value {$from}", self::ERROR);;
                 } else {
