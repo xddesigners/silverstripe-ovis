@@ -159,6 +159,15 @@ class Import extends BuildTask
                 'priceMonth' => 'RentalPriceMonth',
                 'deposit' => 'RentalDeposit',
                 'noclaim' => 'RentalNoClaim'
+            ),
+            'specscamper' => array(
+                'category' => 'CamperCategory',
+                'carBrand' => 'CamperCarBrand',
+                'mileage' => 'CamperMileage',
+                'euroclass' => 'CamperEuroClass',
+                'fuel' => 'CamperFuel',
+                'transmission' => 'CamperTransmission',
+                'engineHorsePower' => 'CamperEngineHorsePower'
             )
         )
     );
