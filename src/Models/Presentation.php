@@ -273,7 +273,7 @@ class Presentation extends DataObject
         ])));
 
         $segmentFilter = URLSegmentFilter::create();
-        $this->Slug = $segmentFilter->filter("$this->ID $this->Title");
+        $this->Slug = $segmentFilter->filter("$this->OvisID $this->Title");
     }
 
     public function getMenuTitle()
