@@ -126,7 +126,7 @@ class Order extends DataObject
 
 
     public function TradeInNice(){
-        return _t(__CLASS__.'TradeIn_'.$this->TradeIn,$this->TradeIn);
+        return _t(__CLASS__.'.TradeIn_'.$this->TradeIn,$this->TradeIn);
     }
 
     public function ConditionNice(){
