@@ -27,6 +27,9 @@ use XD\Ovis\Models\Presentation;
  */
 class OvisPageController extends PageController
 {
+
+    private static $page_length = 18;
+
     private static $allowed_actions = array(
         'presentation',
         'Filters',
@@ -159,7 +162,7 @@ class OvisPageController extends PageController
         $this->extend('updateFilters', $filters);
         $occasions = Presentation::get()->filter($filters)->sort($sort);
         $paginatedList = PaginatedList::create($occasions, $this->getRequest());
-        return $paginatedList->setPageLength(12);
+        return $paginatedList->setPageLength(self::$page_length);
     }
 
     /**
