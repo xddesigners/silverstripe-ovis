@@ -109,6 +109,8 @@ class Order extends DataObject
             ->setReplyTo($this->Email)
             ->setHTMLTemplate('XD\Ovis\Email\OrderEmail')
             ->setData($this);
+        
+        $this->extend('updateEmail',$email);
 
         return $email;
     }
