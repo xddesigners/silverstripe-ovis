@@ -11,6 +11,8 @@ use SilverStripe\Dev\BuildTask;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Assets\Folder;
+use SilverStripe\ORM\DB;
+use SilverStripe\Versioned\Versioned;
 use XD\Ovis\Models\PresentationAccessory;
 use XD\Ovis\Models\PresentationAccessorySub;
 use XD\Ovis\Models\PresentationBed;
@@ -191,6 +193,20 @@ class Import extends BuildTask
         foreach ($toDeleteItems as $id => $ovisId) {
             DataObject::delete_by_id(Presentation::class, $id);
             self::log("[DELETED] presentation $id", self::NOTICE);
+        }
+
+        // clean up
+        $presentationIDs = Presentation::get()->columnUnique();
+        $mediaToDelete = PresentationMedia::get()->filter(['PresentationID:not'=>$presentationIDs])->limit(5000);
+
+        if( $mediaToDelete->exists() ){
+            $total =  $mediaToDelete->Count();
+            $i = 1;
+            foreach( $mediaToDelete as $media ){
+                self::log("[DELETING] media: " . $media->ID . ' ('.$i.'-'.$total . ')' , self::NOTICE );
+                $media->doArchive();
+                $i++;
+            }
         }
 
         self::log('Finished: no pages left to query', self::SUCCESS);
