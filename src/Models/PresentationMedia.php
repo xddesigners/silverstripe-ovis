@@ -65,6 +65,9 @@ class PresentationMedia extends Image
      */
     public function downloadImageTo($imageSource, $fileName, $folderPath)
     {
+        // remove webp
+        $imageSource = str_replace('/webp','',$imageSource);
+        
         $client = Ovis::mediaClient();
         $request = $client->request('GET', $imageSource);
         $stream = $request->getBody();
