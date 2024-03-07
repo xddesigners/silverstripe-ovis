@@ -5,14 +5,9 @@ namespace XD\Ovis\Tasks;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use SilverStripe\Assets\FileNameFilter;
-use SilverStripe\Assets\FilenameParsing\HashFileIDHelper;
-use SilverStripe\Control\Director;
+use SilverStripe\Core\Environment;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\Assets\Folder;
-use SilverStripe\ORM\DB;
-use SilverStripe\Versioned\Versioned;
 use XD\Ovis\Models\PresentationAccessory;
 use XD\Ovis\Models\PresentationAccessorySub;
 use XD\Ovis\Models\PresentationBed;
@@ -20,7 +15,6 @@ use XD\Ovis\Models\PresentationDivision;
 use XD\Ovis\Models\PresentationMedia;
 use XD\Ovis\Ovis;
 use XD\Ovis\Models\Presentation;
-use XD\Ovis\Schemas\PresentationMediaImage;
 use XD\Ovis\Schemas\PresentationSpecificationsAccessory;
 use XD\Ovis\Schemas\PresentationSpecificationsBed;
 use XD\Ovis\Schemas\PresentationSpecificationsSpecsDivision;
@@ -227,7 +221,7 @@ class Import extends BuildTask
         }
 
         /** @var SearchResponse $contents */
-        if (($body = $result->getBody()) && ($contents = Convert::json2obj($body->getContents()))) {
+        if (($body = $result->getBody()) && ($contents = json_decode($body->getContents()))) {
             if (!$contents->result) {
                 self::log('No search result', self::NOTICE);
                 exit(self::NOTICE);
