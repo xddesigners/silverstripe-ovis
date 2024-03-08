@@ -55,7 +55,13 @@ class OvisPageController extends PageController
         $request = $this->getRequest();
         $fields = FieldList::create();
 
-        foreach (array_unique(OvisPage::config()->get('filters')) as $filter) {
+        foreach (OvisPage::config()->get('filters') as $key => $filter) {
+            $hasEmpty = false;
+            if (is_array($filter)) {
+                $hasEmpty = isset($filter['hasempty']) && $filter['hasempty'];
+                $filter = $key;
+            }
+
             $filterParts = explode('_', $filter);
             $column = $filterParts[0];
             $value = $request->getVar($filter);
@@ -71,6 +77,9 @@ class OvisPageController extends PageController
                 }
 
                 $field = new DropdownField($filter, _t(__CLASS__ . ".Filter_$filter", $column), $values, $value);
+                if ($hasEmpty) {
+                    $field->setEmptyString(_t(__CLASS__ . ".Filter_Empty_{$filter}", "Alle $column"));
+                }
             } else {
                 $field = new TextField($filter, _t(__CLASS__ . ".Filter_$filter", $column), $request->getVar($filter));
             }
@@ -131,7 +140,7 @@ class OvisPageController extends PageController
     {
         $request = $this->getRequest();
         $sortingOptions = OvisPage::config()->get('sorting_options');
-        $sort = self::sorting_column_exists($request->getVar('Sort'))
+        $sort = self::sorting_column_exists($request->getVar('Sort') ?? '')
             ? $request->getVar('Sort')
             : array_search(current($sortingOptions), $sortingOptions);
 
@@ -140,7 +149,12 @@ class OvisPageController extends PageController
             ? array('Category' => $this->Category)
             : array();
 
-        foreach (array_unique(OvisPage::config()->get('filters')) as $filter) {
+        foreach (OvisPage::config()->get('filters') as $key => $filter) {
+            // if filter has options use key
+            if (is_array($filter)) {
+                $filter = $key;
+            }
+
             if ($value = $request->getVar($filter)) {
                 $filterParts = explode('_', $filter);
                 $column = $filterParts[0];
@@ -193,11 +207,12 @@ class OvisPageController extends PageController
      */
     public function getBrandValues()
     {
-        $brands = Presentation::get()->sort('Brand DESC')->column('Brand');
-        $brands = array_map('ucfirst', array_combine($brands, $brands));
+        $brands = Presentation::get()->sort('Brand ASC')->column('Brand');
+        $brands = array_map(fn($value) => ucfirst((string) $value), array_combine($brands, $brands));
 
-        $brands[] = _t('OvisPage.Filter_AllBrands', 'All brands');
-        $brands = array_reverse($brands, true);
+        // TODO: dont add
+        // $brands[] = _t('OvisPage.Filter_AllBrands', 'All brands');
+        // $brands = array_reverse($brands, true);
 
         return $brands;
     }

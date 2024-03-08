@@ -34,7 +34,9 @@ class OvisPage extends Page
      */
     private static $filters = array(
         'Title',
-        'Brand',
+        'Brand' => [
+            'hasempty' => true
+        ],
         'Price_From',
         'Price_Till',
         'ConstructionYear_From',
