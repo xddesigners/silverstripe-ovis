@@ -2,6 +2,7 @@
 
 namespace XD\Ovis\Control;
 
+use Exception;
 use PageController;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\EmailField;
