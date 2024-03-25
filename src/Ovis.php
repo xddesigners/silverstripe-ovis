@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 use SilverStripe\Core\Config\Configurable;
 use Exception;
 use GuzzleHttp\Client;
+use SilverStripe\Core\Environment;
 
 /**
  * Class Ovis
@@ -127,8 +128,12 @@ class Ovis
      */
     public static function client()
     {
-        if (!$key = self::config()->get('api_key')) {
-            throw new Exception('No api key is set.', self::EXCEPTION_NO_API_KEY);
+        if (!$key = Environment::getEnv('OVIS_API_KEY')) {
+            $key = self::config()->get('api_key');
+        }
+
+        if (!$key) {
+            throw new Exception('No api key is set, set this in your config `api_key` or environment `OVIS_API_KEY`', self::EXCEPTION_NO_API_KEY);
         }
 
         return new Client([
