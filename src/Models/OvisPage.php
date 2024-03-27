@@ -60,11 +60,13 @@ class OvisPage extends Page
     {
         $fields = parent::getCMSFields();
         $categories = Presentation::get()->column('Category');
-        $categories = array_map('ucwords', array_combine($categories, $categories));
-        $categories[self::ALL_CATEGORIES] = _t(__CLASS__ . '.All', 'All');
-        $fields->addFieldsToTab('Root.Main', [
-            DropdownField::create('Category', 'Category', $categories)
-        ], 'Content');
+        if (!empty($categories)) {
+            $categories = array_map(fn($category) => ucwords($category ?? ''), array_filter(array_combine($categories, $categories)));
+            $fields->addFieldsToTab('Root.Main', [
+                DropdownField::create('Category', 'Category', $categories)
+                    ->setEmptyString(_t(__CLASS__ . '.All', 'All'))
+            ], 'Content');
+        }
 
         return $fields;
     }
