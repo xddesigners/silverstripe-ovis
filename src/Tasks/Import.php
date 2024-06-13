@@ -410,9 +410,9 @@ class Import extends BuildTask
             }
         }
 
-        if (!$media->isPublished()) {
+        //if (!$media->isPublished()) {
             $media->publishSingle();
-        }
+        //}
 
         return $media;
     }
