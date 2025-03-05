@@ -4,6 +4,7 @@ namespace XD\Ovis\Control;
 
 use Exception;
 use PageController;
+use SilverStripe\Control\Director;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
@@ -65,7 +66,7 @@ class OvisPageController extends PageController
 
             $filterParts = explode('_', $filter);
             $column = $filterParts[0];
-            $value = $request->getVar($filter);
+            $value = $request->requestVar($filter);
             $method = "get{$column}Values";
 
             if (self::hasMethod($method)) {
@@ -82,7 +83,7 @@ class OvisPageController extends PageController
                     $field->setEmptyString(_t(__CLASS__ . ".Filter_Empty_{$filter}", "Alle $column"));
                 }
             } else {
-                $field = new TextField($filter, _t(__CLASS__ . ".Filter_$filter", $column), $request->getVar($filter));
+                $field = new TextField($filter, _t(__CLASS__ . ".Filter_$filter", $column), $request->requestVar($filter));
             }
 
             $this->extend('updateFilterField', $field);
@@ -91,7 +92,7 @@ class OvisPageController extends PageController
 
         $sortingOptions = OvisPage::config()->get('sorting_options');
 
-        $currentSortingValue = $request->getVar('Sort') ? $request->getVar('Sort') : array_search(current($sortingOptions), $sortingOptions);
+        $currentSortingValue = $request->requestVar('Sort') ? $request->requestVar('Sort') : array_search(current($sortingOptions), $sortingOptions);
         $sort = new DropdownField('Sort', _t('OvisPage.Sort', 'Sort'), $sortingOptions, $currentSortingValue);
         $fields->add($sort);
 
@@ -112,6 +113,11 @@ class OvisPageController extends PageController
      */
     public function searchovis($data, Form $form)
     {
+
+        if( Director::is_ajax() || isset($_REQUEST['ajax']) ){
+            return $this->renderWith('XD\Ovis\Includes\PaginatedResults');
+        }
+
         unset($data['url']);
         unset($data['SecurityID']);
         unset($data['action_search']);
@@ -141,8 +147,8 @@ class OvisPageController extends PageController
     {
         $request = $this->getRequest();
         $sortingOptions = OvisPage::config()->get('sorting_options');
-        $sort = self::sorting_column_exists($request->getVar('Sort') ?? '')
-            ? $request->getVar('Sort')
+        $sort = self::sorting_column_exists($request->requestVar('Sort') ?? '')
+            ? $request->requestVar('Sort')
             : array_search(current($sortingOptions), $sortingOptions);
 
 
@@ -156,7 +162,7 @@ class OvisPageController extends PageController
                 $filter = $key;
             }
 
-            if ($value = $request->getVar($filter)) {
+            if ($value = $request->requestVar($filter)) {
                 $filterParts = explode('_', $filter);
                 $column = $filterParts[0];
                 $fromTill = isset($filterParts[1]) ? $filterParts[1] : null;
