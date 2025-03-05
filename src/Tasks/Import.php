@@ -1,515 +1,450 @@
 <?php
 
-namespace XD\Ovis\Tasks;
+namespace XD\Ovis\Models;
 
-use Exception;
-use GuzzleHttp\Exception\GuzzleException;
-use SilverStripe\Assets\FileNameFilter;
-use SilverStripe\Core\Environment;
-use SilverStripe\Dev\BuildTask;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataList;
+use SilverStripe\ORM\FieldType\DBHTMLText;
+use SilverStripe\ORM\ValidationException;
+use SilverStripe\View\ArrayData;
 use SilverStripe\ORM\DataObject;
-use XD\Ovis\Models\PresentationAccessory;
-use XD\Ovis\Models\PresentationAccessorySub;
-use XD\Ovis\Models\PresentationBed;
-use XD\Ovis\Models\PresentationDivision;
-use XD\Ovis\Models\PresentationMedia;
-use XD\Ovis\Ovis;
-use XD\Ovis\Models\Presentation;
-use XD\Ovis\Schemas\PresentationSpecificationsAccessory;
-use XD\Ovis\Schemas\PresentationSpecificationsBed;
-use XD\Ovis\Schemas\PresentationSpecificationsSpecsDivision;
-use XD\Ovis\Schemas\SearchResponse;
+use SilverStripe\Control\Director;
+use SilverStripe\ORM\HasManyList;
+use SilverStripe\ORM\ManyManyList;
+use SilverStripe\View\SSViewer;
+use SilverStripe\View\Parsers\URLSegmentFilter;
+use XD\Ovis\Control\OvisPageController;
 
 /**
- * Class Import
+ * Class Presentation
  *
  * @author Bram de Leeuw
- * @package XD
- * @subpackage Ovis
+ * @package XD\Ovis\Models
+ *
+ * @property string Title
+ * @property string Slug
+ * @property int OvisID
+ * @property string OvisCreated
+ * @property string OvisUpdated
+ * @property string UserID
+ * @property string ExternalAdID
+ * @property string GUID
+ * @property string Realm
+ * @property string Locale
+ * @property string Status
+ * @property string Media360Link
+ * @property string MediaPDFLink
+ * @property string Media3DLink
+ * @property string MediaVideoLink
+ * @property string BannerAvekoLink
+ * @property string BannerKampeerkredietLink
+ * @property string BannerFinanplazaLink
+ * @property string Category
+ * @property string Brand
+ * @property string Model
+ * @property string Version
+ * @property string TitleSuffix
+ * @property string LicensePlate
+ * @property string ChassisNumber
+ * @property string Description
+ * @property string Memo
+ * @property boolean New
+ * @property boolean Damaged
+ * @property boolean Demo
+ * @property boolean Classic
+ * @property boolean Sold
+ * @property boolean Expected
+ * @property boolean Stock
+ * @property boolean Reserved
+ * @property boolean Outdated
+ * @property boolean Rental
+ * @property boolean ExRental
+ * @property boolean Export
+ * @property int ConstructionYear
+ * @property int ConstructionMonth
+ * @property int ModelYear
+ * @property string DateArrival
+ * @property string DatePart1a
+ * @property string DatePurchased
+ * @property boolean MediatorEnabled
+ * @property string MediatorName
+ * @property string MediatorPhoneNumber
+ * @property string MediatorEmail
+ * @property string MediatorDescription
+ * @property int LengthConstruction
+ * @property int LengthTotal
+ * @property int Width
+ * @property int Height
+ * @property int Headroom
+ * @property int WeightEmpty
+ * @property int WeightOperational
+ * @property int WeightMaximum
+ * @property int Capacity
+ * @property int NumberOfBeds
+ * @property int NumberOfSleepingPlaces
+ * @property int Bedrooms
+ * @property boolean Bovag
+ * @property string BovagEndDate
+ * @property int BovagMonths
+ * @property string BovagDescription
+ * @property boolean Factory
+ * @property string FactoryEndDate
+ * @property int FactoryMonths
+ * @property int FactoryMileage
+ * @property string FactoryDescription
+ * @property boolean MiscWarranty
+ * @property string MiscEndDate
+ * @property int MiscMonths
+ * @property boolean MiscMileage
+ * @property string MiscDescription
+ * @property int Price
+ * @property string PriceRetail
+ * @property int PriceDisplay
+ * @property int CostsRoadworthy
+ * @property int PriceTakeout
+ * @property int PriceTrade
+ * @property int PriceExport
+ * @property int PriceCatalogue
+ * @property int PricePurchase
+ * @property int PriceValuation
+ * @property int PriceSold
+ * @property string VAT
+ *
+ * @method HasManyList Media()
+ * @method HasManyList Accessories()
+ *
+ * @method ManyManyList Beds()
+ * @method ManyManyList Divisions()
  */
-class Import extends BuildTask
+class Presentation extends DataObject
 {
-    const NOTICE = 0;
-    const SUCCESS = 1;
-    const WARN = 2;
-    const ERROR = 3;
+    private static $table_name = 'Ovis_Presentation';
 
-    protected $title = 'Import the OVIS data';
+    private static $singular_name = 'Presentation';
 
-    protected $description = 'Import the OVIS data';
+    private static $plural_name = 'Presentations';
 
-    protected $enabled = true;
-
-    private static $use_clean_images = false;
-
-    /**
-     * Define the data mapping for the importable object
-     * @var array
-     */
-    private static $data_mapping = [
-        'id' => 'OvisID',
-        'created' => 'OvisCreated',
-        'updated' => 'OvisUpdated',
-        'userId' => 'UserID',
-        'externalAdId' => 'ExternalAdID',
-        'guid' => 'GUID',
-        'realm' => 'Realm',
-        'locale' => 'Locale',
-        'status' => 'Status',
-        'mediainfo' => [
-            '360' => [
-                'url' => 'Media360Link'
-            ],
-            'pdf' => 'MediaPDFLink',
-            '3D' => 'Media3DLink',
-            'taGGleVideo' => 'MediaVideoLink'
-        ],
-        'banners' => [
-            'aveko' => [
-                'url' => 'BannerAvekoLink'
-            ],
-            'kampeerkrediet' => [
-                'url' => 'BannerKampeerkredietLink'
-            ],
-            'finanplaza' => [
-                'url' => 'BannerFinanplazaLink'
-            ]
-        ],
-        'specifications' => [
-            'category' => 'Category',
-            'brand' => 'Brand',
-            'model' => 'Model',
-            'version' => 'Version',
-            'titleSuffix' => 'TitleSuffix',
-            'licensePlate' => 'LicensePlate',
-            'chassisNumber' => 'ChassisNumber',
-            'description' => 'Description',
-            'memo' => 'Memo',
-            'new' => 'New',
-            'damaged' => 'Damaged',
-            'demo' => 'Demo',
-            'classic' => 'Classic',
-            'sold' => 'Sold',
-            'expected' => 'Expected',
-            'stock' => 'Stock',
-            'reserved' => 'Reserved',
-            'outdated' => 'Outdated',
-            'rental' => 'Rental',
-            'exRental' => 'ExRental',
-            'export' => 'Export',
-            'dates' => [
-                'constructionYear' => 'ConstructionYear',
-                'constructionMonth' => 'ConstructionMonth',
-                'modelYear' => 'ModelYear',
-                'dateArrival' => 'DateArrival',
-                'datePart1a' => 'DatePart1a',
-                'datePurchased' => 'DatePurchased'
-            ],
-            'mediator' => [
-                'enabled' => 'MediatorEnabled',
-                'name' => 'MediatorName',
-                'phoneNumber' => 'MediatorPhoneNumber',
-                'email' => 'MediatorEmail',
-                'description' => 'MediatorDescription'
-            ],
-            'weightsMeasures' => [
-                'lengthConstruction' => 'LengthConstruction',
-                'lengthTotal' => 'LengthTotal',
-                'width' => 'Width',
-                'height' => 'Height',
-                'headroom' => 'Headroom',
-                'weightEmpty' => 'WeightEmpty',
-                'weightOperational' => 'WeightOperational',
-                'weightMaximum' => 'WeightMaximum',
-                'capacity' => 'Capacity'
-            ],
-            'beds' => [
-                'numberOfBeds' => 'NumberOfBeds',
-                'numberOfSleepingPlaces' => 'NumberOfSleepingPlaces',
-                'bedrooms' => 'Bedrooms',
-            ],
-            'warranty' => [
-                'bovag' => 'Bovag',
-                'bovagEndDate' => 'BovagEndDate',
-                'bovagMonths' => 'BovagMonths',
-                'bovagDescription' => 'BovagDescription',
-                'factory' => 'Factory',
-                'factoryEndDate' => 'FactoryEndDate',
-                'factoryMonths' => 'FactoryMonths',
-                'factoryMileage' => 'FactoryMileage',
-                'factoryDescription' => 'FactoryDescription',
-                'miscWarranty' => 'MiscWarranty',
-                'miscEndDate' => 'MiscEndDate',
-                'miscMonths' => 'MiscMonths',
-                'miscMileage' => 'MiscMileage',
-                'miscDescription' => 'MiscDescription'
-            ],
-            'prices' => [
-                'price' => 'Price',
-                'retail' => 'PriceRetail',
-                'display' => 'PriceDisplay',
-                'costsRoadworthy' => 'CostsRoadworthy',
-                'takeout' => 'PriceTakeout',
-                'trade' => 'PriceTrade',
-                'export' => 'PriceExport',
-                'catalogue' => 'PriceCatalogue',
-                'purchase' => 'PricePurchase',
-                'valuation' => 'PriceValuation',
-                'sold' => 'PriceSold',
-                'vat' => 'VAT',
-            ],
-            'pricesRental' => [
-                'price3Hours' => 'RentalPrice3Hours',
-                'priceDayPart' => 'RentalPriceDayPart',
-                'priceDay' => 'RentalPriceDay',
-                'priceWeekend' => 'RentalPriceWeekend',
-                'priceWeek' => 'RentalPriceWeek',
-                'priceMonth' => 'RentalPriceMonth',
-                'deposit' => 'RentalDeposit',
-                'noclaim' => 'RentalNoClaim'
-            ]
-        ]
+    private static $db = [
+        'Title' => 'Varchar',
+        'Slug' => 'Varchar',
+        // XD\Ovis\Schemas\Presentation
+        'OvisID' => 'Int',
+        'OvisCreated' => 'DBDatetime',
+        'OvisUpdated' => 'DBDatetime',
+        'UserID' => 'Int',
+        'ExternalAdID' => 'Int',
+        'GUID' => 'Varchar',
+        'Realm' => 'Varchar',
+        'Locale' => 'Varchar(5)',
+        'Status' => 'Varchar',
+        // XD\Ovis\Schemas\PresentationMedia
+        'Media360Link' => 'Text',
+        'MediaPDFLink' => 'Text',
+        'Media3DLink' => 'Text',
+        'MediaVideoLink' => 'Text',
+        // XD\Ovis\Schemas\PresentationBanners
+        'BannerAvekoLink' => 'Text',
+        'BannerKampeerkredietLink' => 'Text',
+        'BannerFinanplazaLink' => 'Text',
+        // XD\Ovis\Schemas\PresentationSpecifications
+        'Category' => 'Varchar',
+        'Brand' => 'Varchar',
+        'Model' => 'Varchar',
+        'Version' => 'Varchar',
+        'TitleSuffix' => 'Varchar',
+        'LicensePlate' => 'Varchar',
+        'ChassisNumber' => 'Varchar',
+        'Description' => 'HTMLText',
+        'Memo' => 'Text',
+        'New' => 'Boolean',
+        'Damaged' => 'Boolean',
+        'Demo' => 'Boolean',
+        'Classic' => 'Boolean',
+        'Sold' => 'Boolean',
+        'Expected' => 'Boolean',
+        'Stock' => 'Boolean',
+        'Reserved' => 'Boolean',
+        'Outdated' => 'Boolean',
+        'Rental' => 'Boolean',
+        'ExRental' => 'Boolean',
+        'Export' => 'Boolean',
+        // XD\Ovis\Schemas\PresentationSpecificationsDates
+        'ConstructionYear' => 'Int',
+        'ConstructionMonth' => 'Int',
+        'ModelYear' => 'Int',
+        'DateArrival' => 'DBDatetime',
+        'DatePart1a' => 'DBDatetime',
+        'DatePurchased' => 'DBDatetime',
+        // XD\Ovis\Schemas\PresentationSpecificationsMediator
+        'MediatorEnabled' => 'Boolean',
+        'MediatorName' => 'Varchar',
+        'MediatorPhoneNumber' => 'Varchar',
+        'MediatorEmail' => 'Varchar',
+        'MediatorDescription' => 'Varchar',
+        // XD\Ovis\Schemas\PresentationSpecificationsWeights
+        'LengthConstruction' => 'Int',
+        'LengthTotal' => 'Int',
+        'Width' => 'Int',
+        'Height' => 'Int',
+        'Headroom' => 'Int',
+        'WeightEmpty' => 'Int',
+        'WeightOperational' => 'Int',
+        'WeightMaximum' => 'Int',
+        'Capacity' => 'Int',
+        // XD\Ovis\Schemas\PresentationSpecificationsBeds
+        'NumberOfBeds' => 'Int',
+        'NumberOfSleepingPlaces' => 'Int',
+        'Bedrooms' => 'Int',
+        // XD\Ovis\Schemas\PresentationSpecificationsWarranty
+        'Bovag' => 'Boolean',
+        'BovagEndDate' => 'DBDatetime',
+        'BovagMonths' => 'Int',
+        'BovagDescription' => 'Text',
+        'Factory' => 'Boolean',
+        'FactoryEndDate' => 'DBDatetime',
+        'FactoryMonths' => 'Int',
+        'FactoryMileage' => 'Int',
+        'FactoryDescription' => 'Text',
+        'MiscWarranty' => 'Boolean',
+        'MiscEndDate' => 'DBDatetime',
+        'MiscMonths' => 'Int',
+        'MiscMileage' => 'Boolean',
+        'MiscDescription' => 'Text',
+        // XD\Ovis\Schemas\PresentationSpecificationPrices
+        'Price' => 'Int',
+        'PriceRetail' => 'Varchar',
+        'PriceDisplay' => 'Int',
+        'CostsRoadworthy' => 'Int',
+        'PriceTakeout' => 'Int',
+        'PriceTrade' => 'Int',
+        'PriceExport' => 'Int',
+        'PriceCatalogue' => 'Int',
+        'PricePurchase' => 'Int',
+        'PriceValuation' => 'Int',
+        'PriceSold' => 'Int',
+        'VAT' => 'Varchar',
+        // TODO XD\Ovis\Schemas\PresentationSpecificationPricesRental
+        'CamperCategory' => 'Varchar(255)',
+        'CamperCarBrand' => 'Varchar(255)',
+        'CamperMileage' => 'Int',
+        'CamperEuroClass' => 'Varchar(255)',
+        'CamperFuel' => 'Varchar(255)',
+        'CamperTransmission' => 'Varchar(255)',
+        'CamperEngineHorsePower' => 'Int',
     ];
 
-    private $oldManifest = [];
-    private $newManifest = [];
+    private static $summary_fields = [
+        'CMSThumbnail' => 'Thumbnail',
+        'Title',
+        'Price.Nice' => 'Price',
+        'Sold.Nice' => 'Sold'
+    ];
 
-    public function run($request)
+    private static $searchable_fields = [
+        'Title',
+        'Price',
+        'Brand',
+        'Model'
+    ];
+
+    private static $casting = [
+        'Price' => 'Currency'
+    ];
+
+    private static $indexes = [
+        'Slug' => true,
+        'OvisID' => true
+    ];
+
+    private static $has_many = [
+        'Media' => PresentationMedia::class,
+        'Accessories' => PresentationAccessory::class // todo can this be a many_many join .. ?
+    ];
+
+    private static $owns = [
+        'Media'
+    ];
+
+    private static $many_many = [
+        'Beds' => PresentationBed::class,
+        'Divisions' => PresentationDivision::class
+    ];
+
+    public function onBeforeWrite()
     {
-        // Set the current state of presentations
-        $this->oldManifest = Presentation::get()->map('ID', 'OvisID')->toArray();
+        parent::onBeforeWrite();
+        $this->Title = ucwords(trim(implode(' ', [
+            $this->Brand,
+            $this->Model,
+            $this->Version
+        ])));
 
-        // Do the search
-        $this->search();
-
-        // Check what presentations to delete
-        $toDeleteItems = array_diff($this->oldManifest, $this->newManifest);
-        foreach ($toDeleteItems as $id => $ovisId) {
-            DataObject::delete_by_id(Presentation::class, $id);
-            self::log("[DELETED] presentation $id", self::NOTICE);
-        }
-
-        // clean up
-        $presentationIDs = Presentation::get()->columnUnique();
-        $mediaToDelete = PresentationMedia::get()->filter(['PresentationID:not'=>$presentationIDs])->limit(5000);
-
-        if( $mediaToDelete->exists() ){
-            $total =  $mediaToDelete->Count();
-            $i = 1;
-            foreach( $mediaToDelete as $media ){
-                self::log("[DELETING] media: " . $media->ID . ' ('.$i.'-'.$total . ')' , self::NOTICE );
-                $media->doArchive();
-                $i++;
-            }
-        }
-
-        self::log('Finished: no pages left to query', self::SUCCESS);
-        exit(self::SUCCESS);
+        $segmentFilter = URLSegmentFilter::create();
+        $this->Slug = $segmentFilter->filter("$this->OvisID $this->Title");
     }
 
-    public function search($page = 1)
+    public function getMenuTitle()
     {
-        try {
-            $result = Ovis::search(['itemsPerPage' => 100, 'page' => $page]);
-        } catch (GuzzleException $e) {
-            self::log($e->getMessage(), self::ERROR);
-            self::log('Could not parse the OVIS API', self::ERROR);
-            exit(self::ERROR);
-        } catch (Exception $e) {
-            self::log('No search query is set', self::ERROR);
-            exit(self::ERROR);
+        return $this->Title;
+    }
+
+    public function Link()
+    {
+        if ($ovisPage = $this->getParent()) {
+            return $ovisPage->Link("presentation/{$this->Slug}");
         }
 
-        /** @var SearchResponse $contents */
-        if (($body = $result->getBody()) && ($contents = json_decode($body->getContents()))) {
-            if (!$contents->result) {
-                self::log('No search result', self::NOTICE);
-                exit(self::NOTICE);
-            }
+        return null;
+    }
 
-            $searchResponseDescription = $contents->data;
-            foreach ($searchResponseDescription->data as $item) {
-                if ($presentation = $this->importPresentation($item->presentation)) {
-                    $this->newManifest[$presentation->ID] = $presentation->OvisID;
-                }
-            }
+    public function AbsoluteLink()
+    {
+        return Director::absoluteURL($this->Link());
+    }
 
-            if ($searchResponseDescription->totalInSet === $searchResponseDescription->itemsPerPage) {
-                $this->search(($page + 1));
-            }
-        }
+    protected function onBeforeDelete()
+    {
+        parent::onBeforeDelete();
+        $this->Media()->removeAll();
+        $this->Accessories()->removeAll();
+        $this->Beds()->removeAll();
+        $this->Divisions()->removeAll();
     }
 
     /**
-     * Import the presentation object
+     * Find or create a Ovis presentation based on the given OVIS ID
      *
-     * @param \XD\Ovis\Schemas\Presentation $presentation
-     * @return Presentation|null
+     * @param $ovisID
+     * @return DataObject|null|Presentation
+     * @throws ValidationException
      */
-    public function importPresentation($presentation)
+    public static function findOrMake($ovisID)
     {
+        if (!$presentation = self::get()->find('OvisID', $ovisID)) {
+            $presentation = self::create();
+            $presentation->OvisID = $ovisID;
+            $presentation->write();
+        }
 
-        try {
-            $importObj = Presentation::findOrMake($presentation->id);
-            $dataMapping = self::config()->get('data_mapping');
+        return $presentation;
+    }
 
-            // Set the object data
-            self::loop_map($dataMapping, $importObj, $presentation);
+    /**
+     * Get the default Image
+     *
+     * @return PresentationMedia
+     */
+    public function getDefaultImage()
+    {
+        /** @var $image PresentationMedia */
+        if (($image = $this->Media()->find('Default', true)) && $image->exists()) {
+            return $image;
+        } elseif (($image = $this->Media()->first()) && $image->exists()) {
+            return $image;
+        }
 
-            // Import the images
-            if (($images = $presentation->mediainfo->images) && is_array($images)) {
-                $importedImages = [];
-                $isFirst = true;
-                if( self::config()->get('use_clean_images') ) {
-                    $isFirst = false;
-                }
-                foreach ($images as $image) {
-                    $media = self::importMedia($image, $importObj, $isFirst);
-                    $importedImages[] = $media->Name;
-                    $isFirst = false;
-                }
+        return PresentationMedia::singleton();
+    }
 
-                // Check if there is old media to delete
-                $toDeleteMedia = $importObj->Media()->exclude(['Name' => $importedImages]);
-                $toDeleteMedia->removeAll();
-            }
+    public function CMSThumbnail()
+    {
+        if ($image = $this->getDefaultImage()){
+            return $image->CMSThumbnail();
+        }
 
-            // Beds
-            if (($beds = $presentation->specifications->beds->bedSpecifications) && is_array($beds)) {
-                foreach ($beds as $bed) {
-                    self::importBed($bed, $importObj);
-                }
-            }
+        return null;
+    }
 
-            // Lay-out divisions
-            if (
-                ($specs = $presentation->specifications->specsCaravan) &&
-                ($divisions = $specs->division) &&
-                is_array($divisions)
-            ) {
-                foreach ($divisions as $division) {
-                    self::importDivision($division, $importObj);
-                }
-            }
+    public function getTitle()
+    {
+        $title = parent::getTitle();
+        $this->extend('updateTitle',$title);
+        return $title;
+    }
 
-            // Accessories
-            if (($accessories = $presentation->specifications->accessories) && is_array($accessories)) {
-                foreach ($accessories as $accessory) {
-                    self::importAccessories($accessory, $importObj);
-                }
-            }
+    function getOGImage()
+    {
+        if ($image = $this->getDefaultImage()){
+            return $image->Fill(1200, 630);
+        }
 
-            $importObj->write();
-            self::log("[Presentation][{$importObj->ID}] Created presentation {$importObj->getTitle()}", self::SUCCESS);
-            return $importObj;
-        } catch (Exception $e) {
-            self::log($e->getMessage(), self::ERROR);
+        return null;
+    }
+
+    function getOGDescription()
+    {
+        return $this->Description;
+    }
+
+    /**
+     * Return the formatted price
+     *
+     * @return string
+     */
+    public function PriceRetailNice()
+    {
+        $price = number_format((int)$this->PriceRetail / 100, 2, ',', '.');
+        return "€ $price";
+    }
+
+    /**
+     * Return the formatted price
+     *
+     * @return string
+     */
+    public function PriceNice()
+    {
+        $price = number_format((int)$this->Price / 100, 2, ',', '.');
+        return "€ $price";
+    }
+
+    /**
+     * Return a Ovis Page instance
+     *
+     * @return DataObject|OvisPage
+     */
+    public function getParent()
+    {
+        if ($page = DataObject::get_one(OvisPage::class, ['Category' => $this->Category])) {
+            return $page;
+        } elseif ($page = DataObject::get_one(OvisPage::class)) {
+            return $page;
         }
 
         return null;
     }
 
     /**
-     * Loop the given data map and possible sub maps
+     * Make compatible with breadcrumb templates
+     * @see SiteTree::getBreadcrumbs()
      *
-     * @param array $map
-     * @param Presentation $object
-     * @param \XD\Ovis\Schemas\Presentation $data
+     * @return DBHTMLText
      */
-    private static function loop_map($map, &$object, $data)
+    public function getBreadCrumbItems()
     {
-        foreach ($map as $from => $to) {
-            if (is_array($to) /* && is_object($data->{$from}) */ ) {
-                self::loop_map($to, $object, $data->{$from});
-            } elseif (isset($data->{$from})) {
-                $value = $data->{$from};
-                if (is_object($value)) {
-                    self::log("Unconfigured value {$from}", self::ERROR);
-                }
-                if(is_string($value) || is_int($value) || is_bool($value) ){
-                    $object->{$to} = (string) $value;
-                }
-            }
-        }
+        $parent = $this->getParent();
+        $pages = $parent->getBreadcrumbItems(20, false, false);
+        $pages->add($this);
+        return $pages;
     }
 
     /**
-     * Import and attach media files
+     * Return presentations from the same brand
      *
-     * @param $image
-     * @param Presentation $presentation
-     * @param bool $getlabel
-     * @return PresentationMedia
+     * @param int $limit
+     * @return DataList
      */
-    private static function importMedia($image, Presentation $presentation, $getlabel = false)
+    public function getSimilarPresentations($limit = 8)
     {
-        if ($getlabel && !self::config()->get('use_clean_images')) {
-            // first image imported with labels included
-            $url = $image->traditional->original->default->url;
-        } else {
-            // always import clean images without labels
-            $url = $image->traditional->original->clean->url;
-        }
-
-        self::log('Parse: ' . $url, self::NOTICE);
-        $urlInfo = parse_url($url);
-        $urlPath = $urlInfo['path'];
-        $exploded = array_filter(explode('/', $urlPath));
-        $fileName = array_shift($exploded);
-        $fileParts = explode('.', $fileName);
-        $fileId = $fileParts[0];
-        $fileExt = $fileParts[1];
-        // Include the unique label parts in the url, so we can bust image caches
-        $fileName = FileNameFilter::create()->filter(implode('-', array_merge([$fileId], $exploded)));
-
-        $slug = $presentation->Slug ?: $presentation->ID;
-        $folderPath = 'ovismedia/' . $slug;
-
-        $hash = sha1($fileName);
-        $fileName = "$hash.$fileExt";
-
-        self::log('Store: ' . $fileName, self::NOTICE);
-
-        /** @var PresentationMedia $media */
-        $media = $presentation->Media()->find('Name', $fileName);
-        if (!$media) {
-            $media = PresentationMedia::create();
-
-            try {
-                $media->downloadImageTo($url, $fileName, $folderPath);
-                $media->generateThumbnails();
-            } catch (GuzzleException $e) {
-                self::log("[PresentationMedia][Download] {$e->getMessage()}", self::ERROR);
-            } catch (Exception $e) {
-                self::log("[PresentationMedia][Download] {$e->getMessage()}", self::ERROR);
-            }
-
-            $media->Title = $presentation->getTitle();
-            $media->Default = $image->default;
-            $media->Sort = $image->order;
-
-            try {
-                $media->write();
-                $presentation->Media()->add($media);
-                self::log("[PresentationMedia][Created] {$media->getTitle()}", self::SUCCESS);
-            } catch (Exception $e) {
-                self::log($e->getMessage(), self::ERROR);
-            }
-        } else {
-            $media->Title = $presentation->getTitle();
-            $media->Default = $image->default;
-            $media->Sort = $image->order;
-
-            if ($media->isChanged()) {
-                try {
-                    $media->write();
-                    self::log("[PresentationMedia][Updated] {$media->getTitle()}", self::SUCCESS);
-                } catch (Exception $e) {
-                    self::log($e->getMessage(), self::ERROR);
-                }
-            }
-        }
-
-        //if (!$media->isPublished()) {
-            $media->publishSingle();
-        //}
-
-        return $media;
+        return Presentation::get()
+            ->filter('Brand', $this->Brand)
+            ->exclude('ID', $this->ID)
+            ->sort("RAND()")
+            ->limit($limit);
     }
 
-    /**
-     * Import the Bed
-     *
-     * @param PresentationSpecificationsBed $bed
-     * @param Presentation $presentation
-     */
-    private static function importBed($bed, &$presentation)
+    public function canView($member = null)
     {
-        try {
-            $bed = PresentationBed::findOrMake($bed);
-            $presentation->Beds()->add($bed);
-            self::log("[PresentationBed][{$bed->ID}] {$bed->getTitle()}", self::SUCCESS);
-        } catch (Exception $e) {
-            self::log($e->getMessage(), self::ERROR);
-        }
-    }
-
-    /**
-     * Import the Division
-     *
-     * @param PresentationSpecificationsSpecsDivision $division
-     * @param Presentation $presentation
-     */
-    private static function importDivision($division, &$presentation)
-    {
-        try {
-            $division = PresentationDivision::findOrMake($division);
-            $presentation->Divisions()->add($division);
-            self::log("[PresentationDivision][{$division->ID}] {$division->getTitle()}", self::SUCCESS);
-        } catch (Exception $e) {
-            self::log($e->getMessage(), self::ERROR);
-        }
-    }
-
-    /**
-     * Import the accessories
-     *
-     * @param PresentationSpecificationsAccessory $accessory
-     * @param Presentation $presentation
-     */
-    private static function importAccessories($accessory, &$presentation)
-    {
-        $filter = [
-            'Category' => $accessory->category,
-            'Description' => $accessory->description
-        ];
-
-        try {
-            if (!$accessoryObj = $presentation->Accessories()->filter($filter)->first()) {
-                $accessoryObj = PresentationAccessory::create($filter);
-                $presentation->Accessories()->add($accessoryObj);
-                self::log("[PresentationAccessory][{$accessoryObj->ID}] {$accessoryObj->getTitle()}", self::SUCCESS);
-            }
-
-            if (is_array($accessory->sub) && !empty($accessory->sub)) {
-                foreach ($accessory->sub as $sub) {
-                    try {
-                        $sub = PresentationAccessorySub::findOrMake($sub);
-                        $accessoryObj->Sub()->add($sub);
-                        self::log("[PresentationAccessorySub][{$sub->ID}] {$sub->getTitle()}", self::SUCCESS);
-                    } catch (Exception $e) {
-                        self::log($e->getMessage(), self::ERROR);
-                    }
-                }
-            }
-
-        } catch (Exception $e) {
-            self::log($e->getMessage(), self::ERROR);
-        }
-    }
-
-    /**
-     * Log messages to the console or cron log
-     *
-     * @param $message
-     * @param $code
-     */
-    protected static function log($message, $code)
-    {
-        switch ($code) {
-            case self::ERROR:
-                echo "[ ERROR ] {$message}\n";
-                break;
-            case self::WARN:
-                echo "[WARNING] {$message}\n";
-                break;
-            case self::SUCCESS:
-                echo "[SUCCESS] {$message}\n";
-                break;
-            case self::NOTICE:
-            default:
-                echo "[NOTICE ] {$message}\n";
-                break;
-        }
+        return true;
     }
 }
