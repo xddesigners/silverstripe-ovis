@@ -224,6 +224,13 @@ class Presentation extends DataObject
         'PriceSold' => 'Int',
         'VAT' => 'Varchar',
         // TODO XD\Ovis\Schemas\PresentationSpecificationPricesRental
+        'CamperCategory' => 'Varchar(255)',
+        'CamperCarBrand' => 'Varchar(255)',
+        'CamperMileage' => 'Int',
+        'CamperEuroClass' => 'Varchar(255)',
+        'CamperFuel' => 'Varchar(255)',
+        'CamperTransmission' => 'Varchar(255)',
+        'CamperEngineHorsePower' => 'Int',
     ];
 
     private static $summary_fields = [
