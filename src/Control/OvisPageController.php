@@ -5,6 +5,7 @@ namespace XD\Ovis\Control;
 use Exception;
 use PageController;
 use SilverStripe\Control\Director;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
@@ -183,7 +184,7 @@ class OvisPageController extends PageController
         $this->extend('updateFilters', $filters);
         $occasions = Presentation::get()->filter($filters)->sort($sort);
         $paginatedList = PaginatedList::create($occasions, $this->getRequest());
-        return $paginatedList->setPageLength(self::$page_length);
+        return $paginatedList->setPageLength(Config::inst()->get(self::class, 'page_length'));
     }
 
     /**
@@ -310,6 +311,7 @@ class OvisPageController extends PageController
      */
     public function OrderForm()
     {
+
         $slug = $this->getRequest()->param('ID');
         if (!$presentation = $this->presentation) {
             $presentation = DataObject::get_one(Presentation::class, ['Slug' => $slug]);

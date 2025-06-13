@@ -2,6 +2,7 @@
 
 namespace XD\Ovis\Models;
 
+use SilverStripe\Core\Environment;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\FieldType\DBHTMLText;
@@ -237,37 +238,37 @@ class Presentation extends DataObject
         'CMSThumbnail' => 'Thumbnail',
         'Title',
         'Price.Nice' => 'Price',
-        'Sold.Nice' => 'Sold'
+        'Sold.Nice' => 'Sold',
     ];
 
     private static $searchable_fields = [
         'Title',
         'Price',
         'Brand',
-        'Model'
+        'Model',
     ];
 
     private static $casting = [
-        'Price' => 'Currency'
+        'Price' => 'Currency',
     ];
 
     private static $indexes = [
         'Slug' => true,
-        'OvisID' => true
+        'OvisID' => true,
     ];
 
     private static $has_many = [
         'Media' => PresentationMedia::class,
-        'Accessories' => PresentationAccessory::class // todo can this be a many_many join .. ?
+        'Accessories' => PresentationAccessory::class, // todo can this be a many_many join .. ?
     ];
 
     private static $owns = [
-        'Media'
+        'Media',
     ];
 
     private static $many_many = [
         'Beds' => PresentationBed::class,
-        'Divisions' => PresentationDivision::class
+        'Divisions' => PresentationDivision::class,
     ];
 
     public function onBeforeWrite()
@@ -276,7 +277,7 @@ class Presentation extends DataObject
         $this->Title = ucwords(trim(implode(' ', [
             $this->Brand,
             $this->Model,
-            $this->Version
+            $this->Version,
         ])));
 
         $segmentFilter = URLSegmentFilter::create();
@@ -290,7 +291,17 @@ class Presentation extends DataObject
 
     public function Link()
     {
+        if (class_exists('SilverStripe\Subsites\Model\Subsite')) {
+            // turn off subsite filtering
+            \SilverStripe\Subsites\Model\Subsite::$disable_subsite_filter = true;
+        }
+
         if ($ovisPage = $this->getParent()) {
+            if (class_exists('SilverStripe\Subsites\Model\Subsite')) {
+                // get mainsite url from ENV
+                $mainURL = Environment::getEnv('SUBSITE_MAIN_URL');
+                return $mainURL . $ovisPage->Link("presentation/{$this->Slug}");
+            }
             return $ovisPage->Link("presentation/{$this->Slug}");
         }
 
@@ -348,7 +359,7 @@ class Presentation extends DataObject
 
     public function CMSThumbnail()
     {
-        if ($image = $this->getDefaultImage()){
+        if ($image = $this->getDefaultImage()) {
             return $image->CMSThumbnail();
         }
 
@@ -358,13 +369,13 @@ class Presentation extends DataObject
     public function getTitle()
     {
         $title = parent::getTitle();
-        $this->extend('updateTitle',$title);
+        $this->extend('updateTitle', $title);
         return $title;
     }
 
     function getOGImage()
     {
-        if ($image = $this->getDefaultImage()){
+        if ($image = $this->getDefaultImage()) {
             return $image->Fill(1200, 630);
         }
 
@@ -416,9 +427,9 @@ class Presentation extends DataObject
 
     /**
      * Make compatible with breadcrumb templates
+     * @return DBHTMLText
      * @see SiteTree::getBreadcrumbs()
      *
-     * @return DBHTMLText
      */
     public function getBreadCrumbItems()
     {
