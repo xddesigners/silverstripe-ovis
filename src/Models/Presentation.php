@@ -300,6 +300,7 @@ class Presentation extends DataObject
             if (class_exists('SilverStripe\Subsites\Model\Subsite')) {
                 // get mainsite url from ENV
                 $mainURL = Environment::getEnv('SUBSITE_MAIN_URL');
+                \SilverStripe\Subsites\Model\Subsite::$disable_subsite_filter = false;
                 return $mainURL . $ovisPage->Link("presentation/{$this->Slug}");
             }
             return $ovisPage->Link("presentation/{$this->Slug}");
