@@ -272,7 +272,7 @@ class Import extends BuildTask
             self::loop_map($dataMapping, $importObj, $presentation);
 
             // Import the images
-            if (($images = $presentation->mediainfo->images) && is_array($images)) {
+            if (($images = $presentation->mediainfo->images ?? null) && is_array($images)) {
                 $importedImages = [];
                 $isFirst = true;
                 if( self::config()->get('use_clean_images') ) {
@@ -290,7 +290,7 @@ class Import extends BuildTask
             }
 
             // Beds
-            if (($beds = $presentation->specifications->beds->bedSpecifications) && is_array($beds)) {
+            if (($beds = $presentation->specifications->beds->bedSpecifications ?? null) && is_array($beds)) {
                 foreach ($beds as $bed) {
                     self::importBed($bed, $importObj);
                 }
@@ -298,8 +298,8 @@ class Import extends BuildTask
 
             // Lay-out divisions
             if (
-                ($specs = $presentation->specifications->specsCaravan) &&
-                ($divisions = $specs->division) &&
+                ($specs = $presentation->specifications->specsCaravan ?? null) &&
+                ($divisions = $specs->division ?? null) &&
                 is_array($divisions)
             ) {
                 foreach ($divisions as $division) {
@@ -308,7 +308,7 @@ class Import extends BuildTask
             }
 
             // Accessories
-            if (($accessories = $presentation->specifications->accessories) && is_array($accessories)) {
+            if (($accessories = $presentation->specifications->accessories ?? null) && is_array($accessories)) {
                 foreach ($accessories as $accessory) {
                     self::importAccessories($accessory, $importObj);
                 }
