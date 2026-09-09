@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-audit:
+    name: Lint & audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Lint PHP files
+        run: find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -r -n1 -P4 php -l
+
+      # Resolve to a lock file only — no downloads (avoids GitHub API rate limits) and no plugin execution.
+      # composer audit reads the lock via the Packagist advisory API.
+      - name: Resolve dependencies (lock only)
+        run: composer update --no-install --no-interaction --no-plugins
+
+      - name: Security audit
+        run: composer audit --locked --no-dev
