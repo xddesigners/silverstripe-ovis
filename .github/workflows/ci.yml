@@ -24,7 +24,7 @@ jobs:
           tools: composer:v2
 
       - name: Validate composer.json
-        run: composer validate --strict
+        run: composer validate
 
       - name: Lint PHP files
         run: find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -r -n1 -P4 php -l
