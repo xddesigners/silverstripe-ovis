@@ -11,6 +11,8 @@ use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
+use SilverStripe\Core\ClassInfo;
+use SilverStripe\ORM\DB;
 use SilverStripe\Security\Security;
 use SilverStripe\Versioned\Versioned;
 use XD\Ovis\Ovis;
@@ -100,5 +102,44 @@ class PresentationMedia extends Image
             UploadField::config()->uninherited('thumbnail_width'),
             UploadField::config()->uninherited('thumbnail_height')
         );
+    }
+
+    /**
+     * Fully remove this media item: the physical file, both stage records AND the
+     * version history. The regular deleteFile()+doArchive() flow keeps every
+     * *_Versions row, which made File_Versions / Image_Versions /
+     * Ovis_PresentationMedia_Versions grow unbounded on each import.
+     */
+    public function purgeCompletely()
+    {
+        $this->deleteFile();
+
+        if ($this->hasExtension(Versioned::class)) {
+            // Removes the Live + Draft (Stage) records ...
+            $this->doArchive();
+            // ... then drop the version history doArchive() leaves behind.
+            $this->purgeVersions();
+        } else {
+            $this->delete();
+        }
+    }
+
+    /**
+     * Delete every *_Versions row for this record across the whole table ancestry
+     * (Ovis_PresentationMedia, Image, File).
+     */
+    protected function purgeVersions()
+    {
+        if (!$id = (int) $this->ID) {
+            return;
+        }
+
+        $tableList = array_map('strtolower', DB::table_list());
+        foreach (ClassInfo::ancestry($this, true) as $table) {
+            $versionsTable = $table . '_Versions';
+            if (in_array(strtolower($versionsTable), $tableList, true)) {
+                DB::prepared_query("DELETE FROM \"{$versionsTable}\" WHERE \"RecordID\" = ?", [$id]);
+            }
+        }
     }
 }

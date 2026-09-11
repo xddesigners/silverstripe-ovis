@@ -12,7 +12,7 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
-use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use SilverStripe\Forms\TextareaField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
@@ -362,7 +362,7 @@ class OvisPageController extends PageController
             FormAction::create('Order', _t(__CLASS__ . '.Order', 'Order'))
         );
 
-        $required = new RequiredFields(array('Name', 'Email'));
+        $required = new RequiredFieldsValidator(array('Name', 'Email')); // SS6: RequiredFields renamed + moved to Forms\Validation
         $form = Form::create($this, 'OrderForm', $fields, $actions, $required);
         $this->extend('updateOrderForm', $form);
 

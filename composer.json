@@ -15,7 +15,11 @@
 		}
 	],
 	"require": {
-		"silverstripe/framework": ">=4.1",
+		"silverstripe/framework": "^6.0",
+		"silverstripe/cms": "^6.0",
+		"silverstripe/assets": "^3.0",
+		"silverstripe/versioned": "^3.0",
+		"silverstripe/asset-admin": "^3.0",
 		"composer/installers": "*",
 		"guzzlehttp/guzzle": "*"
 	},
