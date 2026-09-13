@@ -16,7 +16,7 @@ use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use SilverStripe\Forms\TextareaField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\ORM\PaginatedList;
+use SilverStripe\Model\List\PaginatedList;
 use SilverStripe\View\Requirements;
 use XD\Ovis\Models\Order;
 use XD\Ovis\Models\OvisPage;
