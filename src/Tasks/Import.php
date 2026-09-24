@@ -188,8 +188,13 @@ class Import extends BuildTask
         // Set the current state of presentations
         $this->oldManifest = Presentation::get()->map('ID', 'OvisID')->toArray();
 
-        // Do the search
-        $this->search();
+        // Do the search. Only continue to the destructive cleanup below when the full
+        // search completed successfully — a failed or empty OVIS response must NOT be
+        // treated as "everything is gone" and wipe all presentations + their media.
+        if (!$this->search()) {
+            self::log('Search did not complete successfully — skipping cleanup to avoid mass-deletion', self::WARN);
+            exit(self::WARN);
+        }
 
         // Check what presentations to delete
         $toDeleteItems = array_diff($this->oldManifest, $this->newManifest);
@@ -208,11 +213,11 @@ class Import extends BuildTask
             /** @var PresentationMedia $media */
             foreach( $mediaToDelete as $media ){
                 self::log("[DELETING] media: " . $media->ID . ' ('.$i.'-'.$total . ')' , self::NOTICE );
-                // remove the actual file from disk
-                $media->deleteFile();
-
-                // archive record
-                $media->doArchive();
+                // Hard-delete: remove the file, both stages AND the version history.
+                // The old flow was deleteFile()+doArchive(), but doArchive() keeps every
+                // *_Versions row, so File_Versions / Image_Versions /
+                // Ovis_PresentationMedia_Versions grew unbounded on each import.
+                $media->purgeCompletely();
 
                 $i++;
             }
@@ -229,17 +234,17 @@ class Import extends BuildTask
         } catch (GuzzleException $e) {
             self::log($e->getMessage(), self::ERROR);
             self::log('Could not parse the OVIS API', self::ERROR);
-            exit(self::ERROR);
+            return false;
         } catch (Exception $e) {
             self::log('No search query is set', self::ERROR);
-            exit(self::ERROR);
+            return false;
         }
 
         /** @var SearchResponse $contents */
         if (($body = $result->getBody()) && ($contents = json_decode($body->getContents()))) {
             if (!$contents->result) {
                 self::log('No search result', self::NOTICE);
-                exit(self::NOTICE);
+                return false;
             }
 
             $searchResponseDescription = $contents->data;
@@ -250,9 +255,16 @@ class Import extends BuildTask
             }
 
             if ($searchResponseDescription->totalInSet === $searchResponseDescription->itemsPerPage) {
-                $this->search(($page + 1));
+                // Propagate the outcome of the remaining pages
+                return $this->search(($page + 1));
             }
+
+            // Reached the last page successfully
+            return true;
         }
+
+        // Unparseable response — treat as a failure so the cleanup does not run
+        return false;
     }
 
     /**
@@ -387,6 +399,7 @@ class Import extends BuildTask
 
         /** @var PresentationMedia $media */
         $media = $presentation->Media()->find('Name', $fileName);
+        $changed = false;
         if (!$media) {
             $media = PresentationMedia::create();
 
@@ -406,6 +419,7 @@ class Import extends BuildTask
             try {
                 $media->write();
                 $presentation->Media()->add($media);
+                $changed = true;
                 self::log("[PresentationMedia][Created] {$media->getTitle()}", self::SUCCESS);
             } catch (Exception $e) {
                 self::log($e->getMessage(), self::ERROR);
@@ -415,9 +429,12 @@ class Import extends BuildTask
             $media->Default = $image->default;
             $media->Sort = $image->order;
 
-            if ($media->isChanged()) {
+            // CHANGE_VALUE: ignore type-only changes (e.g. Default true vs stored 1),
+            // otherwise every import writes a new version for every image.
+            if ($media->isChanged(null, DataObject::CHANGE_VALUE)) {
                 try {
                     $media->write();
+                    $changed = true;
                     self::log("[PresentationMedia][Updated] {$media->getTitle()}", self::SUCCESS);
                 } catch (Exception $e) {
                     self::log($e->getMessage(), self::ERROR);
@@ -425,9 +442,12 @@ class Import extends BuildTask
             }
         }
 
-        //if (!$media->isPublished()) {
+        // Only (re)publish when something actually changed or the record isn't live
+        // yet. Publishing on every run created a fresh set of *_Versions rows per image
+        // per import — the main source of the versioned-table bloat.
+        if ($media->exists() && ($changed || !$media->isPublished())) {
             $media->publishSingle();
-        //}
+        }
 
         return $media;
     }
