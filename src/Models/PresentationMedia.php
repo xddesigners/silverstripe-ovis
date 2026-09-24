@@ -12,6 +12,7 @@ use SilverStripe\Assets\Image;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\ClassInfo;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Security;
 use SilverStripe\Versioned\Versioned;
@@ -135,8 +136,9 @@ class PresentationMedia extends Image
         }
 
         $tableList = array_map('strtolower', DB::table_list());
-        foreach (ClassInfo::ancestry($this, true) as $table) {
-            $versionsTable = $table . '_Versions';
+        $schema = DataObject::getSchema();
+        foreach (ClassInfo::ancestry($this, true) as $class) {
+            $versionsTable = $schema->tableName($class) . '_Versions';
             if (in_array(strtolower($versionsTable), $tableList, true)) {
                 DB::prepared_query("DELETE FROM \"{$versionsTable}\" WHERE \"RecordID\" = ?", [$id]);
             }
