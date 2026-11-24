@@ -347,8 +347,13 @@ class Import extends BuildTask
     private static function loop_map($map, &$object, $data)
     {
         foreach ($map as $from => $to) {
-            if (is_array($to) /* && is_object($data->{$from}) */ ) {
-                self::loop_map($to, $object, $data->{$from});
+            if (is_array($to)) {
+                // Optional nested groups (e.g. specsCamper, pricesRental) are absent on
+                // presentations they don't apply to; only recurse when the group is actually
+                // present as an object, otherwise $data->{$from} warns "Undefined property".
+                if (isset($data->{$from}) && is_object($data->{$from})) {
+                    self::loop_map($to, $object, $data->{$from});
+                }
             } elseif (isset($data->{$from})) {
                 $value = $data->{$from};
                 if (is_object($value)) {
@@ -430,7 +435,9 @@ class Import extends BuildTask
             $media->Default = $image->default;
             $media->Sort = $image->order;
 
-            if ($media->isChanged()) {
+            // CHANGE_VALUE: ignore type-only changes (e.g. Default true vs stored 1),
+            // otherwise every import writes a new version for every image.
+            if ($media->isChanged(null, DataObject::CHANGE_VALUE)) {
                 try {
                     $media->write();
                     $changed = true;
