@@ -32,6 +32,9 @@ use XD\Ovis\Ovis;
  */
 class PresentationMedia extends Image
 {
+    /** Asset folder the import stores all photos in, one subfolder per presentation */
+    const FOLDER = 'ovismedia';
+
     private static $table_name = 'Ovis_PresentationMedia';
 
     private static $singular_name = 'Media';
