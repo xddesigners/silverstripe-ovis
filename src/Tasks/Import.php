@@ -395,7 +395,7 @@ class Import extends BuildTask
         $fileName = FileNameFilter::create()->filter(implode('-', array_merge([$fileId], $exploded)));
 
         $slug = $presentation->Slug ?: $presentation->ID;
-        $folderPath = 'ovismedia/' . $slug;
+        $folderPath = PresentationMedia::FOLDER . '/' . $slug;
 
         $hash = sha1($fileName);
         $fileName = "$hash.$fileExt";
