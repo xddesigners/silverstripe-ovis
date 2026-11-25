@@ -327,15 +327,18 @@ class Presentation extends DataObject
      * Find or create a Ovis presentation based on the given OVIS ID
      *
      * @param $ovisID
+     * @param bool $write store a new presentation right away
      * @return DataObject|null|Presentation
      * @throws ValidationException
      */
-    public static function findOrMake($ovisID)
+    public static function findOrMake($ovisID, $write = true)
     {
         if (!$presentation = self::get()->find('OvisID', $ovisID)) {
             $presentation = self::create();
             $presentation->OvisID = $ovisID;
-            $presentation->write();
+            if ($write) {
+                $presentation->write();
+            }
         }
 
         return $presentation;
