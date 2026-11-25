@@ -11,6 +11,7 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\PolyExecution\PolyOutput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Throwable;
 use XD\Ovis\Models\PresentationAccessory;
 use XD\Ovis\Models\PresentationAccessorySub;
 use XD\Ovis\Models\PresentationBed;
@@ -250,9 +251,10 @@ class Import extends BuildTask
 
             $searchResponseDescription = $contents->data;
             foreach ($searchResponseDescription->data as $item) {
-                if ($presentation = $this->importPresentation($item->presentation)) {
-                    $this->newManifest[$presentation->ID] = $presentation->OvisID;
-                }
+                // Register the presentation as seen before importing it: the cleanup deletes what
+                // OVIS no longer lists, so a presentation whose import fails must be kept.
+                $this->newManifest[] = $item->presentation->id;
+                $this->importPresentation($item->presentation);
             }
 
             if ($searchResponseDescription->totalInSet === $searchResponseDescription->itemsPerPage) {
@@ -330,8 +332,14 @@ class Import extends BuildTask
             $importObj->write();
             self::log("[Presentation][{$importObj->ID}] Created presentation {$importObj->getTitle()}", self::SUCCESS);
             return $importObj;
-        } catch (Exception $e) {
-            self::log($e->getMessage(), self::ERROR);
+        } catch (Throwable $e) {
+            // Includes PHP Errors (e.g. from an extension hook), so one broken presentation
+            // does not abort the import of all others.
+            self::log(
+                "[Presentation][OVIS {$presentation->id}] Import failed, " . get_class($e) . ": {$e->getMessage()}"
+                . " ({$e->getFile()}:{$e->getLine()})",
+                self::ERROR
+            );
         }
 
         return null;
