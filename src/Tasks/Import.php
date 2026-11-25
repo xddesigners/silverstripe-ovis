@@ -280,11 +280,26 @@ class Import extends BuildTask
     {
 
         try {
-            $importObj = Presentation::findOrMake($presentation->id);
+            // Do not store a new presentation yet: a failing import would leave an empty record
+            $importObj = Presentation::findOrMake($presentation->id, false);
+            $isNew = !$importObj->isInDB();
             $dataMapping = self::config()->get('data_mapping');
 
             // Set the object data
             self::loop_map($dataMapping, $importObj, $presentation);
+
+            // The relations below need an ID
+            if ($isNew) {
+                try {
+                    $importObj->write();
+                } catch (Throwable $e) {
+                    // Stored, but a hook failed after that: continue, so the photos are still
+                    // imported. The write below runs the hook again and reports it.
+                    if (!$importObj->isInDB()) {
+                        throw $e;
+                    }
+                }
+            }
 
             // Import the images
             if (($images = $presentation->mediainfo->images ?? null) && is_array($images)) {
@@ -329,7 +344,8 @@ class Import extends BuildTask
                 }
             }
 
-            $importObj->write();
+            // Forced for a new presentation, so write hooks also run with the relations in place
+            $importObj->write(false, false, $isNew);
             self::log("[Presentation][{$importObj->ID}] Created presentation {$importObj->getTitle()}", self::SUCCESS);
             return $importObj;
         } catch (Throwable $e) {
